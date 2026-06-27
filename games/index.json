@@ -3,20 +3,12 @@
     "id": 1,
     "title": "2048",
     "category": "Puzzle",
-    "thumbnail": "https://placehold.co/300x200/6c63ff/white?text=2048",
+    "thumbnail": "https://placehold.co/300x200/6c3aed/white?text=2048",
     "url": "https://gabrielecirulli.github.io/2048/",
     "featured": true
   },
   {
     "id": 2,
-    "title": "Wordle Clone",
-    "category": "Wörter",
-    "thumbnail": "https://placehold.co/300x200/43a047/white?text=Wordle",
-    "url": "https://hellowordl.net/",
-    "featured": true
-  },
-  {
-    "id": 3,
     "title": "Tetris",
     "category": "Arcade",
     "thumbnail": "https://placehold.co/300x200/e53935/white?text=Tetris",
@@ -24,12 +16,20 @@
     "featured": true
   },
   {
-    "id": 4,
+    "id": 3,
     "title": "Flappy Bird",
     "category": "Arcade",
     "thumbnail": "https://placehold.co/300x200/fb8c00/white?text=Flappy+Bird",
     "url": "https://nebez.github.io/floppybird/",
-    "featured": false
+    "featured": true
+  },
+  {
+    "id": 4,
+    "title": "Cookie Clicker",
+    "category": "Idle",
+    "thumbnail": "https://placehold.co/300x200/8d6e63/white?text=Cookie+Clicker",
+    "url": "https://orteil.dashnet.org/cookieclicker/",
+    "featured": true
   },
   {
     "id": 5,
@@ -49,22 +49,6 @@
   },
   {
     "id": 7,
-    "title": "Chess",
-    "category": "Strategie",
-    "thumbnail": "https://placehold.co/300x200/37474f/white?text=Chess",
-    "url": "https://www.chess.com/play/computer",
-    "featured": false
-  },
-  {
-    "id": 8,
-    "title": "Sudoku",
-    "category": "Puzzle",
-    "thumbnail": "https://placehold.co/300x200/5e35b1/white?text=Sudoku",
-    "url": "https://sudoku.com/",
-    "featured": false
-  },
-  {
-    "id": 9,
     "title": "Minesweeper",
     "category": "Puzzle",
     "thumbnail": "https://placehold.co/300x200/546e7a/white?text=Minesweeper",
@@ -72,19 +56,35 @@
     "featured": false
   },
   {
-    "id": 10,
+    "id": 8,
     "title": "Slope",
     "category": "Geschicklichkeit",
     "thumbnail": "https://placehold.co/300x200/d81b60/white?text=Slope",
     "url": "https://slope-game.github.io/",
-    "featured": true
+    "featured": false
+  },
+  {
+    "id": 9,
+    "title": "Sudoku",
+    "category": "Puzzle",
+    "thumbnail": "https://placehold.co/300x200/5e35b1/white?text=Sudoku",
+    "url": "https://sudoku.com/",
+    "featured": false
+  },
+  {
+    "id": 10,
+    "title": "Chess",
+    "category": "Strategie",
+    "thumbnail": "https://placehold.co/300x200/37474f/white?text=Chess",
+    "url": "https://lichess.org/",
+    "featured": false
   },
   {
     "id": 11,
-    "title": "Cookie Clicker",
-    "category": "Idle",
-    "thumbnail": "https://placehold.co/300x200/8d6e63/white?text=Cookie+Clicker",
-    "url": "https://orteil.dashnet.org/cookieclicker/",
+    "title": "Wordle",
+    "category": "Wörter",
+    "thumbnail": "https://placehold.co/300x200/43a047/white?text=Wordle",
+    "url": "https://wordlegame.org/",
     "featured": false
   },
   {
@@ -93,6 +93,70 @@
     "category": "Multiplayer",
     "thumbnail": "https://placehold.co/300x200/26a69a/white?text=Agar.io",
     "url": "https://agar.io/",
+    "featured": false
+  },
+  {
+    "id": 13,
+    "title": "Geometry Dash",
+    "category": "Geschicklichkeit",
+    "thumbnail": "https://placehold.co/300x200/f57f17/white?text=Geometry+Dash",
+    "url": "https://geometrydash.io/",
+    "featured": false
+  },
+  {
+    "id": 14,
+    "title": "Mahjong",
+    "category": "Puzzle",
+    "thumbnail": "https://placehold.co/300x200/bf360c/white?text=Mahjong",
+    "url": "https://mahjong.gg/",
+    "featured": false
+  },
+  {
+    "id": 15,
+    "title": "Solitaire",
+    "category": "Karten",
+    "thumbnail": "https://placehold.co/300x200/2e7d32/white?text=Solitaire",
+    "url": "https://solitaire.gg/",
+    "featured": false
+  },
+  {
+    "id": 16,
+    "title": "Cut the Rope",
+    "category": "Puzzle",
+    "thumbnail": "https://placehold.co/300x200/6a1b9a/white?text=Cut+the+Rope",
+    "url": "https://www.cuttherope.net/",
+    "featured": false
+  },
+  {
+    "id": 17,
+    "title": "Ludo",
+    "category": "Brettspiele",
+    "thumbnail": "https://placehold.co/300x200/00838f/white?text=Ludo",
+    "url": "https://www.parchisi.org/",
+    "featured": false
+  },
+  {
+    "id": 18,
+    "title": "Backgammon",
+    "category": "Brettspiele",
+    "thumbnail": "https://placehold.co/300x200/4e342e/white?text=Backgammon",
+    "url": "https://backgammonnow.com/",
+    "featured": false
+  },
+  {
+    "id": 19,
+    "title": "Bubble Shooter",
+    "category": "Arcade",
+    "thumbnail": "https://placehold.co/300x200/1565c0/white?text=Bubble+Shooter",
+    "url": "https://www.bubbleshooter.net/",
+    "featured": false
+  },
+  {
+    "id": 20,
+    "title": "Stack",
+    "category": "Geschicklichkeit",
+    "thumbnail": "https://placehold.co/300x200/00695c/white?text=Stack",
+    "url": "https://www.crazygames.com/game/stack",
     "featured": false
   }
 ]

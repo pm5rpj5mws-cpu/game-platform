@@ -2,24 +2,41 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Spiel laden...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LarsGames</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body class="is-game-page">
 
-  <header>
-    <a href="index.html">← Zurück</a>
-    <h2 id="game-title"></h2>
+  <header class="nav">
+    <a href="index.html" class="nav__logo">🎮 LarsGames</a>
+    <span class="nav__game-title" id="game-title"></span>
+    <button class="btn-login">Login</button>
   </header>
 
-  <div id="game-container">
-    <iframe id="game-frame" src="" allowfullscreen></iframe>
+  <div class="game-layout">
+    <aside class="sidebar">
+      <p class="sidebar__label">Vorgeschlagen</p>
+      <div id="suggested-left" class="sidebar__list"></div>
+    </aside>
+
+    <div class="game-center">
+      <iframe id="game-frame" src="" allowfullscreen allow="autoplay; fullscreen"></iframe>
+    </div>
+
+    <aside class="sidebar sidebar--right">
+      <p class="sidebar__label">Mehr Spiele</p>
+      <div id="suggested-right" class="sidebar__list"></div>
+    </aside>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    document.getElementById('game-title').textContent = params.get('title');
-    document.getElementById('game-frame').src = params.get('url');
-  </script>
+  <div class="bottom-row">
+    <p class="sidebar__label">Das könnte dir auch gefallen</p>
+    <div id="suggested-bottom" class="bottom-row__grid"></div>
+  </div>
+
+  <script src="assets/js/game.js"></script>
 </body>
 </html>

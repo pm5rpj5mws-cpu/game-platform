@@ -4,18 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LarsGames</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-  <header>
-    <h1>🎮 LarsGames</h1>
-    <input type="text" id="search" placeholder="Spiel suchen...">
-    <div id="categories"></div>
+  <header class="nav">
+    <span class="nav__logo">🎮 LarsGames</span>
+    <div class="nav__search-wrap">
+      <input type="text" id="search" placeholder="Spiel suchen...">
+    </div>
+    <button class="btn-login">Login</button>
   </header>
 
+  <div class="categories-bar">
+    <div id="categories" class="categories"></div>
+  </div>
+
   <main>
-    <div id="game-grid"></div>
+    <section id="featured-section">
+      <h2 class="section-title">⭐ Featured</h2>
+      <div id="featured-grid" class="game-grid game-grid--featured"></div>
+    </section>
+
+    <section id="all-section">
+      <h2 class="section-title">Alle Spiele</h2>
+      <div id="game-grid" class="game-grid"></div>
+    </section>
   </main>
 
   <script src="assets/js/main.js"></script>
