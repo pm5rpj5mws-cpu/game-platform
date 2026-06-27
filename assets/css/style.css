@@ -1,0 +1,72 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #0f0f1a;
+  color: #fff;
+}
+
+header {
+  background: #1a1a2e;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+header h1 { font-size: 1.8rem; }
+
+#search {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background: #2a2a3e;
+  color: #fff;
+  width: 220px;
+}
+
+#categories { display: flex; gap: 8px; flex-wrap: wrap; }
+
+#categories button {
+  padding: 6px 14px;
+  border-radius: 16px;
+  border: none;
+  background: #2a2a3e;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#categories button:hover { background: #6c63ff; }
+
+#game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 30px;
+}
+
+.game-card {
+  background: #1a1a2e;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s;
+  text-align: center;
+}
+
+.game-card:hover { transform: scale(1.05); }
+.game-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.game-title { display: block; padding: 8px; font-weight: bold; }
+.game-category { display: block; padding-bottom: 8px; color: #aaa; font-size: 0.8rem; }
+
+#game-container {
+  height: calc(100vh - 60px);
+}
+
+#game-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}

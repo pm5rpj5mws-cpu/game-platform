@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Spiel laden...</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <header>
+    <a href="index.html">← Zurück</a>
+    <h2 id="game-title"></h2>
+  </header>
+
+  <div id="game-container">
+    <iframe id="game-frame" src="" allowfullscreen></iframe>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById('game-title').textContent = params.get('title');
+    document.getElementById('game-frame').src = params.get('url');
+  </script>
+</body>
+</html>

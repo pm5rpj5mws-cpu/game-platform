@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "title": "2048",
+    "category": "Puzzle",
+    "thumbnail": "assets/img/2048.png",
+    "url": "https://play2048.co/",
+    "featured": true
+  },
+  {
+    "id": 2,
+    "title": "Snake",
+    "category": "Arcade",
+    "thumbnail": "assets/img/snake.png",
+    "url": "https://www.google.com/fbx?fbx=snake_arcade",
+    "featured": false
+  }
+]
