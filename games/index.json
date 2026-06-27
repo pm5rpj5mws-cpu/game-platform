@@ -3,16 +3,96 @@
     "id": 1,
     "title": "2048",
     "category": "Puzzle",
-    "thumbnail": "assets/img/2048.png",
-    "url": "https://play2048.co/",
+    "thumbnail": "https://placehold.co/300x200/6c63ff/white?text=2048",
+    "url": "https://gabrielecirulli.github.io/2048/",
     "featured": true
   },
   {
     "id": 2,
+    "title": "Wordle Clone",
+    "category": "Wörter",
+    "thumbnail": "https://placehold.co/300x200/43a047/white?text=Wordle",
+    "url": "https://hellowordl.net/",
+    "featured": true
+  },
+  {
+    "id": 3,
+    "title": "Tetris",
+    "category": "Arcade",
+    "thumbnail": "https://placehold.co/300x200/e53935/white?text=Tetris",
+    "url": "https://chvin.github.io/react-tetris/",
+    "featured": true
+  },
+  {
+    "id": 4,
+    "title": "Flappy Bird",
+    "category": "Arcade",
+    "thumbnail": "https://placehold.co/300x200/fb8c00/white?text=Flappy+Bird",
+    "url": "https://nebez.github.io/floppybird/",
+    "featured": false
+  },
+  {
+    "id": 5,
     "title": "Snake",
     "category": "Arcade",
-    "thumbnail": "assets/img/snake.png",
-    "url": "https://www.google.com/fbx?fbx=snake_arcade",
+    "thumbnail": "https://placehold.co/300x200/00897b/white?text=Snake",
+    "url": "https://playsnake.org/",
+    "featured": false
+  },
+  {
+    "id": 6,
+    "title": "Pacman",
+    "category": "Arcade",
+    "thumbnail": "https://placehold.co/300x200/fdd835/333?text=Pacman",
+    "url": "https://freepacman.org/",
+    "featured": false
+  },
+  {
+    "id": 7,
+    "title": "Chess",
+    "category": "Strategie",
+    "thumbnail": "https://placehold.co/300x200/37474f/white?text=Chess",
+    "url": "https://www.chess.com/play/computer",
+    "featured": false
+  },
+  {
+    "id": 8,
+    "title": "Sudoku",
+    "category": "Puzzle",
+    "thumbnail": "https://placehold.co/300x200/5e35b1/white?text=Sudoku",
+    "url": "https://sudoku.com/",
+    "featured": false
+  },
+  {
+    "id": 9,
+    "title": "Minesweeper",
+    "category": "Puzzle",
+    "thumbnail": "https://placehold.co/300x200/546e7a/white?text=Minesweeper",
+    "url": "https://minesweeper.online/",
+    "featured": false
+  },
+  {
+    "id": 10,
+    "title": "Slope",
+    "category": "Geschicklichkeit",
+    "thumbnail": "https://placehold.co/300x200/d81b60/white?text=Slope",
+    "url": "https://slope-game.github.io/",
+    "featured": true
+  },
+  {
+    "id": 11,
+    "title": "Cookie Clicker",
+    "category": "Idle",
+    "thumbnail": "https://placehold.co/300x200/8d6e63/white?text=Cookie+Clicker",
+    "url": "https://orteil.dashnet.org/cookieclicker/",
+    "featured": false
+  },
+  {
+    "id": 12,
+    "title": "Agar.io",
+    "category": "Multiplayer",
+    "thumbnail": "https://placehold.co/300x200/26a69a/white?text=Agar.io",
+    "url": "https://agar.io/",
     "featured": false
   }
 ]
