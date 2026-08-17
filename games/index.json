@@ -1,170 +1,18 @@
 [
   {
     "id": 1,
-    "title": "2048",
-    "category": "Puzzle",
-    "thumbnail": "assets/img/2048.png",
-    "url": "https://gabrielecirulli.github.io/2048/",
-    "featured": true
-  },
-  {
-    "id": 2,
-    "title": "Tetris",
-    "category": "Arcade",
-    "thumbnail": "assets/img/tetris.png",
-    "url": "https://chvin.github.io/react-tetris/",
-    "featured": true
-  },
-  {
-    "id": 3,
-    "title": "Flappy Bird",
-    "category": "Arcade",
-    "thumbnail": "assets/img/flappy_bird.png",
-    "url": "https://nebez.github.io/floppybird/",
-    "featured": true
-  },
-  {
-    "id": 4,
-    "title": "Cookie Clicker",
-    "category": "Idle",
-    "thumbnail": "assets/img/cookie-clicker.jpg",
-    "url": "https://orteil.dashnet.org/cookieclicker/",
-    "featured": true
-  },
-  {
-    "id": 5,
-    "title": "Snake",
-    "category": "Arcade",
-    "thumbnail": "assets/img/snake.png",
-    "url": "https://playsnake.org/",
-    "featured": false
-  },
-  {
-    "id": 6,
-    "title": "Pacman",
-    "category": "Arcade",
-    "thumbnail": "assets/img/pacman.png",
-    "url": "https://freepacman.org/",
-    "featured": false
-  },
-  {
-    "id": 7,
-    "title": "Minesweeper",
-    "category": "Puzzle",
-    "thumbnail": "assets/img/minesweeper.png",
-    "url": "https://minesweeper.online/",
-    "featured": false
-  },
-  {
-    "id": 8,
-    "title": "Slope",
-    "category": "Geschicklichkeit",
-    "thumbnail": "assets/img/slope.png",
-    "url": "https://slope-game.github.io/",
-    "featured": false
-  },
-  {
-    "id": 9,
-    "title": "Sudoku",
-    "category": "Puzzle",
-    "thumbnail": "assets/img/sudoku.png",
-    "url": "https://sudoku.com/",
-    "featured": false
-  },
-  {
-    "id": 10,
-    "title": "Chess",
-    "category": "Strategie",
-    "thumbnail": "assets/img/chess.png",
-    "url": "https://lichess.org/",
-    "featured": false
-  },
-  {
-    "id": 11,
-    "title": "Wordle",
-    "category": "Wörter",
-    "thumbnail": "assets/img/wordle.png",
-    "url": "https://wordlegame.org/",
-    "featured": false
-  },
-  {
-    "id": 12,
-    "title": "Agar.io",
-    "category": "Multiplayer",
-    "thumbnail": "assets/img/agar.io.png",
-    "url": "https://agar.io/",
-    "featured": false
-  },
-  {
-    "id": 13,
-    "title": "Geometry Dash",
-    "category": "Geschicklichkeit",
-    "thumbnail": "assets/img/geometry-dash.png",
-    "url": "https://geometrydash.io/",
-    "featured": false
-  },
-  {
-    "id": 14,
-    "title": "Mahjong",
-    "category": "Puzzle",
-    "thumbnail": "assets/img/mahjong.png",
-    "url": "https://mahjong.gg/",
-    "featured": false
-  },
-  {
-    "id": 15,
-    "title": "Solitaire",
-    "category": "Karten",
-    "thumbnail": "assets/img/solitaire.png",
-    "url": "https://solitaire.gg/",
-    "featured": false
-  },
-  {
-    "id": 16,
-    "title": "Cut the Rope",
-    "category": "Puzzle",
-    "thumbnail": "assets/img/cut-the-rope.png",
-    "url": "https://www.cuttherope.net/",
-    "featured": false
-  },
-  {
-    "id": 17,
-    "title": "Ludo",
-    "category": "Brettspiele",
-    "thumbnail": "assets/img/ludo.png",
-    "url": "https://www.parchisi.org/",
-    "featured": false
-  },
-  {
-    "id": 18,
-    "title": "Backgammon",
-    "category": "Brettspiele",
-    "thumbnail": "assets/img/backgammon.png",
-    "url": "https://backgammonnow.com/",
-    "featured": false
-  },
-  {
-    "id": 19,
-    "title": "Bubble Shooter",
-    "category": "Arcade",
-    "thumbnail": "assets/img/bubble-shooter.png",
-    "url": "https://www.bubbleshooter.net/",
-    "featured": false
-  },
-  {
-    "id": 20,
-    "title": "Stack",
-    "category": "Geschicklichkeit",
-    "thumbnail": "assets/img/stack.png",
-    "url": "https://www.coolmathgames.com/de/0-stack-game",
-    "featured": false
-  },
-  {
-    "id": 21,
     "title": "Treffpunkt",
     "category": "Geschicklichkeit",
     "thumbnail": "assets/img/treffpunkt.png",
     "url": "games/treffpunkt/treffpunkt-v3.html",
+    "featured": true
+  },
+  {
+    "id": 2,
+    "title": "Breakout",
+    "category": "Arcade",
+    "thumbnail": "assets/img/breakout.png",
+    "url": "games/breakout/breakout.html",
     "featured": true
   }
 ]

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Breakout</title>
+<style>
+:root{
+  --ink:    #141d26;
+  --cream:  #f2ead9;
+  --cream2: #d8cdb8;
+  --muted:  #8d9aa6;
+  --amber:  #e0a03c;
+  --brick:  #c25a41;
+  --sage:   #7ba57f;
+  --blue:   #4a8fc2;
+  --line:   rgba(242,234,217,.14);
+}
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body{
+  height:100%; width:100%;
+  background:var(--ink);
+  color:var(--cream);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+  overflow:hidden;
+}
+#wrap{ position:relative; width:100%; height:100%; }
+canvas{ display:block; width:100%; height:100%; touch-action:none; }
+
+#hud{
+  position:absolute; top:0; left:0; right:0; z-index:3;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  padding:12px 16px; pointer-events:none;
+  padding-top:calc(12px + env(safe-area-inset-top));
+}
+.hud-box{
+  background:rgba(20,29,38,.78);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:6px 12px; min-width:70px;
+}
+.hud-label{ font-size:9px; letter-spacing:.2em; color:var(--muted); text-transform:uppercase; }
+.hud-value{ font-size:20px; font-weight:600; font-family:Georgia,serif; font-variant-numeric:tabular-nums; line-height:1.2; }
+.hud-value.amber{ color:var(--amber); }
+.right{ text-align:right; }
+
+.screen{
+  position:absolute; inset:0; z-index:6;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px; padding:26px 20px; text-align:center;
+  background:linear-gradient(180deg,rgba(20,29,38,.95),rgba(16,23,30,.98));
+}
+.hidden{ display:none !important; }
+.logo{
+  font-family:Georgia,serif;
+  font-size:clamp(36px,10vw,58px); font-weight:400; letter-spacing:.03em; line-height:1;
+}
+.logo em{ font-style:italic; color:var(--amber); }
+.rule{ width:56px; height:2px; background:var(--amber); opacity:.8; }
+.tag{ color:var(--muted); font-size:12px; letter-spacing:.26em; text-transform:uppercase; }
+.hint{ color:var(--cream2); font-size:13px; max-width:300px; line-height:1.65; }
+.hint b{ color:var(--amber); }
+.btn{
+  appearance:none; cursor:pointer;
+  background:var(--amber); color:var(--ink);
+  border:none; border-radius:8px;
+  font-size:15px; font-weight:700; letter-spacing:.05em;
+  padding:13px 36px; margin-top:4px;
+  transition:opacity .15s;
+}
+.btn:hover{ opacity:.85; }
+.btn.ghost{
+  background:transparent; color:var(--cream2);
+  border:1px solid var(--line); font-weight:500;
+}
+.big-score{ font-family:Georgia,serif; font-size:clamp(48px,14vw,80px); color:var(--amber); line-height:1; }
+.label{ font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game"></canvas>
+
+  <div id="hud">
+    <div class="hud-box">
+      <div class="hud-label">Punkte</div>
+      <div class="hud-value amber" id="scoreEl">0</div>
+    </div>
+    <div class="hud-box right">
+      <div class="hud-label">Leben</div>
+      <div class="hud-value" id="livesEl">♥ ♥ ♥</div>
+    </div>
+  </div>
+
+  <!-- Start -->
+  <div class="screen" id="startScreen">
+    <div class="logo">Break<em>out</em></div>
+    <div class="rule"></div>
+    <div class="tag">Arcade · Klassiker</div>
+    <div class="hint">Bewege das Paddle mit der <b>Maus</b> oder dem <b>Finger</b>.<br>Zerstöre alle Blöcke — lass den Ball nicht fallen!</div>
+    <button class="btn" id="startBtn">Spielen</button>
+  </div>
+
+  <!-- Level klar -->
+  <div class="screen hidden" id="levelScreen">
+    <div class="tag">Level geschafft!</div>
+    <div class="big-score" id="levelScore">0</div>
+    <div class="label">Punkte</div>
+    <div class="hint">Nächstes Level — der Ball wird schneller.</div>
+    <button class="btn" id="nextBtn">Weiter</button>
+  </div>
+
+  <!-- Game Over -->
+  <div class="screen hidden" id="overScreen">
+    <div class="tag">Game Over</div>
+    <div class="big-score" id="finalScore">0</div>
+    <div class="label">Punkte</div>
+    <button class="btn" id="restartBtn">Nochmal</button>
+    <button class="btn ghost" id="menuBtn">Menü</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx    = canvas.getContext('2d');
+
+const scoreEl = document.getElementById('scoreEl');
+const livesEl = document.getElementById('livesEl');
+
+// --- Farben ---
+const C = {
+  ink:   '#141d26',
+  cream: '#f2ead9',
+  muted: '#8d9aa6',
+  amber: '#e0a03c',
+  brick: '#c25a41',
+  sage:  '#7ba57f',
+  blue:  '#4a8fc2',
+  line:  'rgba(242,234,217,0.12)',
+};
+
+const BRICK_COLORS = [C.brick, C.amber, C.sage, C.blue, '#9b6ec8'];
+
+// --- Spielzustand ---
+let W, H;
+let score = 0, lives = 3, level = 1;
+let running = false;
+
+// Paddle
+const pad = { w: 0, h: 0, x: 0, y: 0, speed: 0 };
+
+// Ball
+const ball = { x: 0, y: 0, r: 0, dx: 0, dy: 0 };
+
+// Blöcke
+let bricks = [];
+const COLS = 8, ROWS = 5;
+const BRICK_GAP = 6;
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  W = canvas.offsetWidth;
+  H = canvas.offsetHeight;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  ctx.scale(dpr, dpr);
+
+  pad.w = Math.max(80, W * 0.14);
+  pad.h = Math.max(10, H * 0.018);
+  pad.y = H * 0.88;
+  pad.x = W / 2 - pad.w / 2;
+  ball.r = Math.max(7, W * 0.012);
+}
+
+function buildBricks(lvl) {
+  bricks = [];
+  const totalW = W * 0.9;
+  const bw = (totalW - BRICK_GAP * (COLS - 1)) / COLS;
+  const bh = Math.max(18, H * 0.035);
+  const startX = (W - totalW) / 2;
+  const startY = H * 0.12;
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const hp = (ROWS - r) + Math.floor(lvl / 3);
+      bricks.push({
+        x: startX + c * (bw + BRICK_GAP),
+        y: startY + r * (bh + BRICK_GAP),
+        w: bw, h: bh,
+        hp, maxHp: hp,
+        color: BRICK_COLORS[r % BRICK_COLORS.length],
+        alive: true,
+      });
+    }
+  }
+}
+
+function resetBall() {
+  const speed = 4 + level * 0.6;
+  ball.x  = W / 2;
+  ball.y  = pad.y - ball.r - 2;
+  ball.dx = (Math.random() < 0.5 ? 1 : -1) * speed * 0.7;
+  ball.dy = -speed;
+}
+
+function startLevel() {
+  buildBricks(level);
+  resetBall();
+  running = true;
+  requestAnimationFrame(loop);
+}
+
+function showScreen(id) {
+  ['startScreen','levelScreen','overScreen'].forEach(s => {
+    document.getElementById(s).classList.toggle('hidden', s !== id);
+  });
+}
+
+// --- Input ---
+let pointerX = null;
+
+canvas.addEventListener('mousemove', e => {
+  const r = canvas.getBoundingClientRect();
+  pointerX = e.clientX - r.left;
+});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  pointerX = e.touches[0].clientX - r.left;
+}, { passive: false });
+
+// --- Kollision Ball ↔ Brick ---
+function ballHitsBrick(b) {
+  return (
+    ball.x + ball.r > b.x &&
+    ball.x - ball.r < b.x + b.w &&
+    ball.y + ball.r > b.y &&
+    ball.y - ball.r < b.y + b.h
+  );
+}
+
+// --- Hauptschleife ---
+let lastTime = 0;
+function loop(ts) {
+  if (!running) return;
+  const dt = Math.min((ts - lastTime) / 16.67, 3);
+  lastTime = ts;
+
+  ctx.clearRect(0, 0, W, H);
+  drawBg();
+
+  // Paddle bewegen
+  if (pointerX !== null) {
+    const target = pointerX - pad.w / 2;
+    pad.x += (target - pad.x) * 0.22;
+  }
+  pad.x = Math.max(0, Math.min(W - pad.w, pad.x));
+
+  // Ball bewegen
+  ball.x += ball.dx * dt;
+  ball.y += ball.dy * dt;
+
+  // Wände
+  if (ball.x - ball.r < 0)  { ball.x = ball.r;      ball.dx = Math.abs(ball.dx); }
+  if (ball.x + ball.r > W)  { ball.x = W - ball.r;  ball.dx = -Math.abs(ball.dx); }
+  if (ball.y - ball.r < 0)  { ball.y = ball.r;       ball.dy = Math.abs(ball.dy); }
+
+  // Paddle-Kollision
+  if (
+    ball.dy > 0 &&
+    ball.y + ball.r >= pad.y &&
+    ball.y + ball.r <= pad.y + pad.h + Math.abs(ball.dy * dt) &&
+    ball.x > pad.x &&
+    ball.x < pad.x + pad.w
+  ) {
+    ball.dy = -Math.abs(ball.dy);
+    // Winkel je nach Trefferposition
+    const rel = (ball.x - pad.x) / pad.w - 0.5;
+    ball.dx = rel * Math.abs(ball.dy) * 2.2;
+  }
+
+  // Ball fällt raus
+  if (ball.y - ball.r > H) {
+    lives--;
+    updateHUD();
+    if (lives <= 0) {
+      running = false;
+      document.getElementById('finalScore').textContent = score;
+      showScreen('overScreen');
+      return;
+    }
+    resetBall();
+  }
+
+  // Brick-Kollision
+  let remaining = 0;
+  for (const b of bricks) {
+    if (!b.alive) continue;
+    remaining++;
+    if (ballHitsBrick(b)) {
+      b.hp--;
+      if (b.hp <= 0) {
+        b.alive = false;
+        remaining--;
+        score += 10 * level;
+        updateHUD();
+      }
+      // Einfache Reflexion: bestimme ob horizontal oder vertikal
+      const overlapL = (ball.x + ball.r) - b.x;
+      const overlapR = (b.x + b.w) - (ball.x - ball.r);
+      const overlapT = (ball.y + ball.r) - b.y;
+      const overlapB = (b.y + b.h) - (ball.y - ball.r);
+      const minH = Math.min(overlapL, overlapR);
+      const minV = Math.min(overlapT, overlapB);
+      if (minH < minV) ball.dx *= -1;
+      else             ball.dy *= -1;
+      break;
+    }
+  }
+
+  if (remaining === 0) {
+    running = false;
+    level++;
+    document.getElementById('levelScore').textContent = score;
+    showScreen('levelScreen');
+    return;
+  }
+
+  drawBricks();
+  drawPaddle();
+  drawBall();
+
+  requestAnimationFrame(loop);
+}
+
+function drawBg() {
+  ctx.fillStyle = C.ink;
+  ctx.fillRect(0, 0, W, H);
+  // Subtile Linie wo Paddle ist
+  ctx.strokeStyle = C.line;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, pad.y + pad.h + 12);
+  ctx.lineTo(W, pad.y + pad.h + 12);
+  ctx.stroke();
+}
+
+function drawBricks() {
+  for (const b of bricks) {
+    if (!b.alive) continue;
+    const ratio = b.hp / b.maxHp;
+    ctx.globalAlpha = 0.4 + ratio * 0.6;
+    ctx.fillStyle = b.color;
+    roundRect(b.x, b.y, b.w, b.h, 4);
+    ctx.fill();
+    // Highlight
+    ctx.globalAlpha = ratio * 0.25;
+    ctx.fillStyle = '#fff';
+    roundRect(b.x + 2, b.y + 2, b.w - 4, 4, 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawPaddle() {
+  const grad = ctx.createLinearGradient(pad.x, pad.y, pad.x, pad.y + pad.h);
+  grad.addColorStop(0, C.amber);
+  grad.addColorStop(1, '#b87d2a');
+  ctx.fillStyle = grad;
+  roundRect(pad.x, pad.y, pad.w, pad.h, pad.h / 2);
+  ctx.fill();
+  // Glanz
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  roundRect(pad.x + 6, pad.y + 2, pad.w - 12, 3, 1.5);
+  ctx.fill();
+}
+
+function drawBall() {
+  const grad = ctx.createRadialGradient(
+    ball.x - ball.r * 0.3, ball.y - ball.r * 0.3, ball.r * 0.1,
+    ball.x, ball.y, ball.r
+  );
+  grad.addColorStop(0, '#fff');
+  grad.addColorStop(0.4, C.cream);
+  grad.addColorStop(1, C.cream2 || '#d8cdb8');
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  // Schatten
+  ctx.beginPath();
+  ctx.arc(ball.x + 2, ball.y + 2, ball.r, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.fill();
+  // Ball nochmal drüber
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+  grad.addColorStop(0, '#fff');
+  ctx.fillStyle = grad;
+  ctx.fill();
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function updateHUD() {
+  scoreEl.textContent = score;
+  livesEl.textContent = '♥ '.repeat(lives).trim() || '—';
+}
+
+function resetGame() {
+  score = 0; lives = 3; level = 1;
+  updateHUD();
+}
+
+// --- Buttons ---
+document.getElementById('startBtn').addEventListener('click', () => {
+  resetGame();
+  showScreen(null);
+  document.getElementById('startScreen').classList.add('hidden');
+  startLevel();
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  document.getElementById('levelScreen').classList.add('hidden');
+  startLevel();
+});
+document.getElementById('restartBtn').addEventListener('click', () => {
+  resetGame();
+  document.getElementById('overScreen').classList.add('hidden');
+  startLevel();
+});
+document.getElementById('menuBtn').addEventListener('click', () => {
+  resetGame();
+  showScreen('startScreen');
+});
+
+// --- Init ---
+window.addEventListener('resize', () => { resize(); if (!running) {} });
+resize();
+showScreen('startScreen');
+</script>
+</body>
+</html>
