@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Treffpunkt</title>
+<style>
+/* ============================================================
+   FARBEN UND GRUNDLAYOUT
+   Ruhiges Sportplatz-Thema: Tintenblau, Creme, Bernstein.
+   ============================================================ */
+:root{
+  --ink:      #141d26;
+  --cream:    #f2ead9;
+  --cream-2:  #d8cdb8;
+  --muted:    #8d9aa6;
+  --amber:    #e0a03c;
+  --brick:    #c25a41;
+  --sage:     #7ba57f;
+  --line:     rgba(242,234,217,.14);
+}
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body{
+  height:100%; width:100%;
+  background:var(--ink);
+  color:var(--cream);
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+.serif{ font-family:Georgia,"Iowan Old Style","Times New Roman",serif; }
+#wrap{ position:relative; width:100%; height:100%; overflow:hidden; }
+canvas#game{ display:block; width:100%; height:100%; touch-action:none; }
+
+/* ============================================================
+   HUD
+   ============================================================ */
+#hud{
+  position:absolute; top:0; left:0; right:0; z-index:3;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  padding:14px 16px; pointer-events:none;
+  padding-top:calc(14px + env(safe-area-inset-top));
+}
+.hud-box{
+  background:rgba(20,29,38,.78);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:7px 12px; min-width:78px;
+}
+.hud-label{ font-size:9px; letter-spacing:.2em; color:var(--muted); text-transform:uppercase; }
+.hud-value{ font-size:21px; font-weight:600; line-height:1.15; font-variant-numeric:tabular-nums;
+  font-family:Georgia,"Times New Roman",serif; }
+#hudCoins .hud-value{ color:var(--amber); }
+#hud .right{ text-align:right; }
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+.screen{
+  position:absolute; inset:0; z-index:6;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:15px; padding:26px 20px; text-align:center;
+  background:linear-gradient(180deg, rgba(20,29,38,.94), rgba(16,23,30,.97));
+}
+.screen.scroll{ justify-content:flex-start; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.hidden{ display:none !important; }
+
+.logo{
+  font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+  font-size:clamp(38px,11vw,60px); font-weight:400; letter-spacing:.03em; line-height:1;
+  color:var(--cream);
+}
+.logo em{ font-style:italic; color:var(--amber); }
+.rule{ width:64px; height:2px; background:var(--amber); opacity:.8; }
+.tag{ color:var(--muted); font-size:12px; letter-spacing:.26em; text-transform:uppercase; }
+.hint{ color:var(--cream-2); font-size:14px; max-width:330px; line-height:1.65; }
+.hint b{ color:var(--amber); font-weight:600; }
+.small{ font-size:12px; color:var(--muted); }
+.eyebrow{ font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:var(--muted); }
+
+/* Modus-Auswahl im Menü */
+.modes{ display:flex; flex-direction:column; gap:10px; width:100%; max-width:340px; }
+.mode-btn{
+  appearance:none; cursor:pointer; text-align:left;
+  border:1px solid var(--line); background:rgba(242,234,217,.04); color:var(--cream);
+  border-radius:8px; padding:14px 16px;
+  display:flex; align-items:center; gap:14px;
+  transition:border-color .15s ease, background .15s ease;
+}
+.mode-btn:hover{ border-color:var(--amber); background:rgba(224,160,60,.08); }
+.mode-btn:focus-visible{ outline:2px solid var(--cream); outline-offset:3px; }
+.mode-btn .mi{ width:34px; height:34px; flex:none; }
+.mode-btn .mt{ font-family:Georgia,"Times New Roman",serif; font-size:19px; line-height:1.2; }
+.mode-btn .md{ font-size:12px; color:var(--muted); line-height:1.45; margin-top:2px; }
+.mode-btn .mb{ margin-left:auto; text-align:right; font-size:10px; color:var(--muted);
+  letter-spacing:.14em; text-transform:uppercase; white-space:nowrap; }
+.mode-btn .mb span{ display:block; font-family:Georgia,serif; font-size:17px; color:var(--amber);
+  letter-spacing:0; text-transform:none; }
+
+.btn{
+  appearance:none; border:1px solid var(--amber);
+  background:var(--amber); color:#231a09;
+  font-size:15px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  padding:14px 30px; border-radius:6px; cursor:pointer; min-width:210px;
+  transition:background .15s ease, transform .1s ease;
+}
+.btn:hover{ background:#eeb356; }
+.btn:active{ transform:translateY(1px); }
+.btn.ghost{
+  background:transparent; border-color:var(--line); color:var(--cream-2);
+  font-size:13px; padding:11px 22px; min-width:150px; font-weight:600;
+}
+.btn.ghost:hover{ border-color:var(--cream-2); color:var(--cream); background:rgba(242,234,217,.05); }
+.btn:focus-visible{ outline:2px solid var(--cream); outline-offset:3px; }
+.row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+
+.sound-toggle{
+  position:absolute; top:calc(14px + env(safe-area-inset-top)); right:16px;
+  z-index:8; width:42px; height:42px; border-radius:6px;
+  border:1px solid var(--line); background:rgba(20,29,38,.8); color:var(--cream);
+  font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.sound-toggle.off{ color:var(--muted); }
+
+/* ============================================================
+   GAME OVER
+   ============================================================ */
+.go-title{ font-family:Georgia,"Times New Roman",serif; font-size:clamp(28px,7.5vw,40px);
+  font-weight:400; color:var(--cream); }
+.go-reason{ color:var(--brick); font-size:12px; letter-spacing:.24em; text-transform:uppercase; font-weight:700; }
+.stats{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:6px 0; }
+.stat{ background:rgba(242,234,217,.045); border:1px solid var(--line); border-radius:6px; padding:12px 18px; min-width:98px; }
+.stat .k{ font-size:9px; letter-spacing:.2em; color:var(--muted); text-transform:uppercase; }
+.stat .v{ font-size:26px; font-weight:400; font-variant-numeric:tabular-nums;
+  font-family:Georgia,"Times New Roman",serif; }
+.record{ color:var(--sage); font-size:12px; letter-spacing:.22em; text-transform:uppercase; font-weight:700; }
+
+/* ============================================================
+   BALLKISTE
+   ============================================================ */
+.shop-head{
+  width:100%; max-width:620px; display:flex; align-items:center; justify-content:space-between;
+  gap:12px; position:sticky; top:0; z-index:2;
+  background:linear-gradient(180deg, rgba(18,26,34,.99) 60%, rgba(18,26,34,0));
+  padding:6px 0 14px;
+}
+.shop-title{ font-family:Georgia,"Times New Roman",serif; font-size:26px; letter-spacing:.03em; }
+.purse{
+  border:1px solid rgba(224,160,60,.45); background:rgba(224,160,60,.08);
+  color:var(--amber); border-radius:6px; padding:8px 14px; font-weight:700;
+  font-variant-numeric:tabular-nums; white-space:nowrap; font-size:14px;
+}
+.grid{
+  width:100%; max-width:620px;
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(142px,1fr)); gap:12px;
+  padding-bottom:28px;
+}
+.card{
+  background:rgba(242,234,217,.04); border:1px solid var(--line); border-radius:8px;
+  padding:12px 10px 10px; display:flex; flex-direction:column; align-items:center; gap:7px;
+}
+.card.equipped{ border-color:var(--amber); background:rgba(224,160,60,.07); }
+.card.locked .prev{ filter:grayscale(.9) brightness(.5); }
+.card .prev{ width:78px; height:78px; display:block; }
+.card .nm{ font-size:13px; font-weight:600; letter-spacing:.03em; }
+.card .fx{ font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--sage); min-height:11px; }
+.card button{
+  width:100%; border-radius:5px; padding:9px 6px; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; cursor:pointer;
+  border:1px solid var(--line); background:transparent; color:var(--cream-2);
+}
+.card button.buy{ border-color:rgba(224,160,60,.5); color:var(--amber); }
+.card button.buy:disabled{ opacity:.35; cursor:not-allowed; }
+.card button.equip:hover{ border-color:var(--cream-2); color:var(--cream); }
+.card button.on{ background:var(--amber); border-color:var(--amber); color:#231a09; cursor:default; }
+
+/* ============================================================
+   WERBE-PLATZHALTER
+   ============================================================ */
+.ad-box{
+  width:min(320px,80vw); aspect-ratio:16/9;
+  border:1px dashed rgba(242,234,217,.3); border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(242,234,217,.03);
+}
+.ad-count{ font-family:Georgia,serif; font-size:54px; color:var(--amber); font-variant-numeric:tabular-nums; }
+.revive-note{ font-size:11px; color:var(--muted); letter-spacing:.08em; margin-top:-6px; }
+
+@media (prefers-reduced-motion: reduce){ .btn,.mode-btn{ transition:none; } }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game"></canvas>
+
+  <!-- HUD waehrend dem Spiel -->
+  <div id="hud" class="hidden">
+    <div class="hud-box" id="hudScore">
+      <div class="hud-label" id="lblScore">Punkte</div>
+      <div class="hud-value" id="vScore">0</div>
+    </div>
+    <div class="hud-box right" id="hudBest">
+      <div class="hud-label" id="lblBest">Rekord</div>
+      <div class="hud-value" id="vBest">0</div>
+    </div>
+    <div class="hud-box right" id="hudCoins">
+      <div class="hud-label">Münzen</div>
+      <div class="hud-value" id="vCoins">0</div>
+    </div>
+  </div>
+
+  <button class="sound-toggle" id="btnSound" title="Ton ein oder aus" aria-label="Ton ein oder aus">♪</button>
+
+  <!-- Startmenü mit Modus-Auswahl -->
+  <div class="screen" id="scrMenu">
+    <div class="logo">Treff<em>punkt</em></div>
+    <div class="rule"></div>
+    <div class="tag">Der richtige Moment</div>
+
+    <div class="modes">
+      <button class="mode-btn" id="btnClassic">
+        <canvas class="mi" id="icoClassic" width="68" height="68"></canvas>
+        <div>
+          <div class="mt">Klassisch</div>
+          <div class="md">Eine Linie, wachsendes Tempo. Halte die Serie am Leben.</div>
+        </div>
+        <div class="mb">Rekord<span id="mbClassic">0</span></div>
+      </button>
+      <button class="mode-btn" id="btnEndless">
+        <canvas class="mi" id="icoEndless" width="68" height="68"></canvas>
+        <div>
+          <div class="mt">Aufstieg</div>
+          <div class="md">Von Linie zu Linie immer weiter hinauf. Münzen liegen unterwegs.</div>
+        </div>
+        <div class="mb">Rekord<span id="mbEndless">0 m</span></div>
+      </button>
+    </div>
+
+    <button class="btn ghost" id="btnShopFromMenu">Ballkiste</button>
+    <p class="small">Leertaste, Klick oder Tippen</p>
+  </div>
+
+  <!-- Game Over -->
+  <div class="screen hidden" id="scrOver">
+    <div class="eyebrow" id="goMode">Klassisch</div>
+    <div class="go-title serif">Lauf beendet</div>
+    <div class="go-reason" id="goReason">Verpasst</div>
+    <div class="stats">
+      <div class="stat"><div class="k" id="kMain">Punkte</div><div class="v" id="goMain">0</div></div>
+      <div class="stat"><div class="k" id="kBest">Rekord</div><div class="v" id="goBest">0</div></div>
+      <div class="stat"><div class="k">Münzen</div><div class="v" id="goCoins" style="color:var(--amber)">+0</div></div>
+    </div>
+    <div class="record hidden" id="goRecord">Neuer Rekord</div>
+    <button class="btn hidden" id="btnRevive">Weiterspielen</button>
+    <div class="revive-note hidden" id="reviveNote">Kurze Werbung, einmal pro Lauf</div>
+    <button class="btn" id="btnAgain">Nochmal</button>
+    <div class="row">
+      <button class="btn ghost" id="btnShopFromOver">Ballkiste</button>
+      <button class="btn ghost" id="btnMenu">Modus wechseln</button>
+    </div>
+  </div>
+
+  <!-- Werbe-Platzhalter, nur sichtbar wenn keine echte Werbung eingerichtet ist -->
+  <div class="screen hidden" id="scrAd">
+    <div class="eyebrow" id="adEyebrow">Platzhalter</div>
+    <div class="go-title serif" id="adTitle">Demo-Werbung</div>
+    <div class="ad-box"><div class="ad-count" id="adCount">5</div></div>
+    <p class="hint" id="adText">Hier läuft später das Video von Google.
+       Solange keine Publisher-ID eingetragen ist, zählt dieser Platzhalter einfach herunter.</p>
+    <button class="btn ghost" id="btnAdCancel">Abbrechen</button>
+  </div>
+
+  <!-- Ballkiste -->
+  <div class="screen scroll hidden" id="scrShop">
+    <div class="shop-head">
+      <div class="shop-title">Ballkiste</div>
+      <div class="purse" id="shopCoins">0 Münzen</div>
+      <button class="btn ghost" id="btnShopBack" style="min-width:auto">Zurück</button>
+    </div>
+    <div class="grid" id="shopGrid"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ================================================================
+   TREFFPUNKT
+   Ein Timing-Spiel in einer einzigen Datei.
+     1. Speicher
+     2. Bälle (alle per Canvas gezeichnet)
+     3. Ton (Web Audio API)
+     4. Canvas und virtuelles Koordinatensystem
+     5. Spiellogik  (Modus "classic" und Modus "endless")
+     6. Zeichnen
+     7. Screens und Eingabe
+     8. Ballkiste
+
+   Zu den beiden Modi:
+   - classic: eine einzige Linie, die Kamera steht still.
+   - endless: die Linien ziehen sich endlos nach oben, die Kamera
+     folgt dem Ball. Nach jedem Treffer steigt der Ball über die
+     nächste Linie hinaus, fällt auf sie zurück und muss dort
+     erneut getroffen werden.
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1. SPEICHER
+   ---------------------------------------------------------------- */
+const SAVE_KEY = "treffpunkt.save.v1";
+const DEFAULT_SAVE = { coins:0, best:0, bestHeight:0, sound:true, unlocked:["klassik"], equipped:"klassik" };
+let memoryFallback = null;
+
+function loadSave(){
+  try{
+    const raw = window.localStorage.getItem(SAVE_KEY);
+    if(!raw) return Object.assign({}, DEFAULT_SAVE);
+    const merged = Object.assign({}, DEFAULT_SAVE, JSON.parse(raw));
+    if(!Array.isArray(merged.unlocked) || merged.unlocked.length === 0) merged.unlocked = ["klassik"];
+    if(merged.unlocked.indexOf("klassik") === -1) merged.unlocked.push("klassik");
+    return merged;
+  }catch(e){
+    return memoryFallback ? memoryFallback : Object.assign({}, DEFAULT_SAVE);
+  }
+}
+function persist(){
+  memoryFallback = save;
+  try{ window.localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){}
+}
+let save = loadSave();
+
+/* ----------------------------------------------------------------
+   2. BÄLLE
+   Regel für alle Zeichenfunktionen: jede räumt ihren Canvas-Zustand
+   selber auf und benutzt zum Zuschneiden nur clip(). Ein
+   Kompositionsmodus wie destination-in würde alles ausserhalb des
+   Balls vom Bild löschen, also auch Linien und Schweif.
+   ---------------------------------------------------------------- */
+function circlePath(ctx,x,y,r){ ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); }
+
+function shade(ctx,x,y,r,strength){
+  const g = ctx.createRadialGradient(x-r*.38,y-r*.42,r*.05,x,y,r*1.05);
+  g.addColorStop(0,"rgba(255,255,255,"+(0.30*(strength||1))+")");
+  g.addColorStop(.45,"rgba(255,255,255,0)");
+  g.addColorStop(.82,"rgba(0,0,0,0)");
+  g.addColorStop(1,"rgba(0,0,0,"+(0.30*(strength||1))+")");
+  ctx.fillStyle=g; circlePath(ctx,x,y,r); ctx.fill();
+}
+
+function drawEmoji(ctx, char, x, y, r, t){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(Math.sin(t*2.6)*0.10);
+  ctx.font = (r*1.85).toFixed(0)+'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+  ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.fillText(char, 0, r*0.06);
+  ctx.restore();
+}
+
+const SKINS = [
+  {
+    id:"klassik", name:"Klassik", price:0, trail:"#f2ead9", parts:[],
+    draw(ctx,x,y,r,t){
+      ctx.save(); ctx.translate(x,y); ctx.rotate(t*1.1);
+      circlePath(ctx,0,0,r); ctx.clip();
+      ctx.fillStyle="#f2ead9"; ctx.fillRect(-r,-r,r*2,r*2);
+      ctx.fillStyle="#c25a41"; ctx.fillRect(-r,0,r*2,r);
+      ctx.strokeStyle="rgba(0,0,0,.25)"; ctx.lineWidth=r*.09;
+      ctx.beginPath(); ctx.moveTo(-r,0); ctx.lineTo(r,0); ctx.stroke();
+      ctx.restore();
+      ctx.save(); shade(ctx,x,y,r,1); ctx.restore();
+    }
+  },
+  {
+    id:"tennis", name:"Tennis", price:30, trail:"#d7e35a", parts:[],
+    draw(ctx,x,y,r,t){
+      ctx.save(); ctx.translate(x,y); ctx.rotate(t*1.3);
+      circlePath(ctx,0,0,r); ctx.clip();
+      ctx.fillStyle="#cfe04f"; ctx.fillRect(-r,-r,r*2,r*2);
+      ctx.strokeStyle="#f7f7f0"; ctx.lineWidth=r*.13; ctx.lineCap="round";
+      for(const s of [-1,1]){
+        ctx.beginPath();
+        ctx.arc(s*r*1.32, 0, r*1.05, -Math.PI*0.42, Math.PI*0.42, s<0 ? false : true);
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.save(); shade(ctx,x,y,r,.8); ctx.restore();
+    }
+  },
+  {
+    id:"basket", name:"Basketball", price:60, trail:"#d9762b", parts:[],
+    draw(ctx,x,y,r,t){
+      ctx.save(); ctx.translate(x,y); ctx.rotate(t*1.4);
+      circlePath(ctx,0,0,r); ctx.clip();
+      const g = ctx.createRadialGradient(-r*.3,-r*.3,r*.1,0,0,r);
+      g.addColorStop(0,"#e58b3d"); g.addColorStop(1,"#b0561c");
+      ctx.fillStyle=g; ctx.fillRect(-r,-r,r*2,r*2);
+      ctx.strokeStyle="#231a13"; ctx.lineWidth=r*.09; ctx.lineCap="round";
+      ctx.beginPath(); ctx.moveTo(0,-r); ctx.lineTo(0,r); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-r,0); ctx.lineTo(r,0); ctx.stroke();
+      for(const s of [-1,1]){
+        ctx.beginPath(); ctx.arc(s*r*1.3, 0, r*1.02, -Math.PI*.45, Math.PI*.45, s<0?false:true); ctx.stroke();
+      }
+      ctx.restore();
+      ctx.save(); shade(ctx,x,y,r,.9); ctx.restore();
+    }
+  },
+  {
+    id:"baseball", name:"Baseball", price:90, trail:"#f4efe4", parts:[],
+    draw(ctx,x,y,r,t){
+      ctx.save(); ctx.translate(x,y); ctx.rotate(t*1.5);
+      circlePath(ctx,0,0,r); ctx.clip();
+      ctx.fillStyle="#f7f3e8"; ctx.fillRect(-r,-r,r*2,r*2);
+      ctx.strokeStyle="#c0392b"; ctx.lineWidth=r*.06; ctx.lineCap="round";
+      for(const s of [-1,1]){
+        ctx.save();
+        ctx.setLineDash([r*.16, r*.16]);
+        ctx.beginPath(); ctx.arc(s*r*1.25, 0, r*1.0, -Math.PI*.45, Math.PI*.45, s<0?false:true); ctx.stroke();
+        ctx.restore();
+      }
+      ctx.restore();
+      ctx.save(); shade(ctx,x,y,r,.75); ctx.restore();
+    }
+  },
+  {
+    id:"soccer", name:"Fussball", price:130, trail:"#e8e8e8", parts:[],
+    draw(ctx,x,y,r,t){
+      ctx.save();
+      ctx.translate(x,y); ctx.rotate(t*1.2);
+      circlePath(ctx,0,0,r); ctx.clip();          // nur clip, kein destination-in
+      ctx.fillStyle="#f4f6f4"; ctx.fillRect(-r,-r,r*2,r*2);
+      ctx.fillStyle="#20262c";
+      ctx.beginPath();
+      for(let i=0;i<5;i++){
+        const a = -Math.PI/2 + i*Math.PI*2/5;
+        const px = Math.cos(a)*r*.34, py = Math.sin(a)*r*.34;
+        i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+      }
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle="#20262c"; ctx.lineWidth=r*.10; ctx.lineCap="round";
+      for(let i=0;i<5;i++){
+        const a = -Math.PI/2 + i*Math.PI*2/5;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a)*r*.4, Math.sin(a)*r*.4);
+        ctx.lineTo(Math.cos(a)*r*.80, Math.sin(a)*r*.80);
+        ctx.stroke();
+      }
+      ctx.fillStyle="#20262c";
+      for(let i=0;i<5;i++){
+        const b = -Math.PI/2 + i*Math.PI*2/5 + Math.PI/5;
+        ctx.beginPath(); ctx.arc(Math.cos(b)*r*1.06, Math.sin(b)*r*1.06, r*.32, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+      ctx.save(); shade(ctx,x,y,r,.7); ctx.restore();
+    }
+  },
+  {
+    id:"wood", name:"Holz", price:170, trail:"#b98a4e", parts:[],
+    draw(ctx,x,y,r,t){
+      ctx.save(); ctx.translate(x,y); ctx.rotate(t*0.7);
+      circlePath(ctx,0,0,r); ctx.clip();
+      const g = ctx.createLinearGradient(-r,-r,r,r);
+      g.addColorStop(0,"#c99a5c"); g.addColorStop(.5,"#a4713a"); g.addColorStop(1,"#7d5227");
+      ctx.fillStyle=g; ctx.fillRect(-r,-r,r*2,r*2);
+      ctx.strokeStyle="rgba(70,42,16,.35)"; ctx.lineWidth=r*.055;
+      for(let i=1;i<=5;i++){
+        ctx.beginPath();
+        ctx.ellipse(-r*.15, r*.1, r*.16*i, r*.22*i, 0.5, 0, Math.PI*2);
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.save(); shade(ctx,x,y,r,.8); ctx.restore();
+    }
+  },
+  {
+    id:"marble", name:"Murmel", price:210, trail:"#9fd0e0", parts:["#ffffff","#9fd0e0","#5b8fb0"],
+    draw(ctx,x,y,r,t){
+      ctx.save();
+      circlePath(ctx,x,y,r); ctx.clip();
+      const g = ctx.createRadialGradient(x-r*.25,y-r*.3,r*.1,x,y,r);
+      g.addColorStop(0,"#f4fbff"); g.addColorStop(.6,"#bfe0ec"); g.addColorStop(1,"#7fa9be");
+      ctx.fillStyle=g; ctx.fillRect(x-r,y-r,r*2,r*2);
+      ctx.save(); ctx.translate(x,y); ctx.rotate(t*0.8);
+      ctx.strokeStyle="rgba(60,110,150,.75)"; ctx.lineWidth=r*.28; ctx.lineCap="round";
+      ctx.beginPath(); ctx.moveTo(-r*.7,r*.25); ctx.quadraticCurveTo(0,-r*.6, r*.7,r*.15); ctx.stroke();
+      ctx.strokeStyle="rgba(230,150,80,.55)"; ctx.lineWidth=r*.14;
+      ctx.beginPath(); ctx.moveTo(-r*.6,-r*.3); ctx.quadraticCurveTo(0,r*.5, r*.6,-r*.2); ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+      ctx.save();
+      shade(ctx,x,y,r,1);
+      ctx.fillStyle="rgba(255,255,255,.85)";
+      ctx.beginPath(); ctx.ellipse(x-r*.34,y-r*.4,r*.20,r*.12,-0.6,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  },
+  {
+    id:"sunset", name:"Abendrot", price:260, trail:"#e07a4a", parts:["#ffd9a0","#e07a4a","#a33b57"],
+    draw(ctx,x,y,r,t){
+      ctx.save();
+      const g = ctx.createLinearGradient(x,y-r,x,y+r);
+      g.addColorStop(0,"#f7d08a"); g.addColorStop(.45,"#e07a4a"); g.addColorStop(1,"#7d2f52");
+      ctx.fillStyle=g; circlePath(ctx,x,y,r); ctx.fill();
+      shade(ctx,x,y,r,.7);
+      ctx.restore();
+    }
+  },
+  {
+    id:"fire", name:"Feuer", price:320, trail:"#e2701c", parts:["#ffe0a3","#e88b2a","#c73c15"],
+    draw(ctx,x,y,r,t){
+      ctx.save();
+      const flick = 0.9 + Math.sin(t*14)*0.08;
+      ctx.shadowColor="rgba(226,112,28,.75)"; ctx.shadowBlur=16*flick;
+      const g = ctx.createRadialGradient(x,y+r*.25,r*.12,x,y,r);
+      g.addColorStop(0,"#ffedbe"); g.addColorStop(.45,"#eda23a"); g.addColorStop(1,"#a82f10");
+      ctx.fillStyle=g; circlePath(ctx,x,y,r); ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.fillStyle="rgba(255,214,140,.7)";
+      for(let i=0;i<5;i++){
+        const a = -Math.PI/2 + (i-2)*0.45;
+        const h = r*(0.35+Math.sin(t*11+i)*0.16);
+        ctx.beginPath();
+        ctx.moveTo(x+Math.cos(a-0.17)*r*.94, y+Math.sin(a-0.17)*r*.94);
+        ctx.lineTo(x+Math.cos(a)*(r+h),      y+Math.sin(a)*(r+h));
+        ctx.lineTo(x+Math.cos(a+0.17)*r*.94, y+Math.sin(a+0.17)*r*.94);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+    }
+  },
+  {
+    id:"ice", name:"Eis", price:320, trail:"#9fd6ea", parts:["#ffffff","#bfe9f7","#6aa9c9"],
+    draw(ctx,x,y,r,t){
+      ctx.save();
+      ctx.shadowColor="rgba(150,214,234,.7)"; ctx.shadowBlur=14;
+      const g = ctx.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);
+      g.addColorStop(0,"#ffffff"); g.addColorStop(.5,"#c3e9f6"); g.addColorStop(1,"#4b87a5");
+      ctx.fillStyle=g; circlePath(ctx,x,y,r); ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.save(); ctx.translate(x,y); ctx.rotate(t*0.5);
+      ctx.strokeStyle="rgba(255,255,255,.85)"; ctx.lineWidth=r*.08; ctx.lineCap="round";
+      for(let i=0;i<3;i++){
+        const a = i*Math.PI/3;
+        ctx.beginPath();
+        ctx.moveTo(-Math.cos(a)*r*.7,-Math.sin(a)*r*.7);
+        ctx.lineTo( Math.cos(a)*r*.7, Math.sin(a)*r*.7);
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.restore();
+    }
+  },
+  {
+    id:"checker", name:"Karo", price:400, trail:"#f2ead9", parts:[],
+    draw(ctx,x,y,r,t){
+      ctx.save(); ctx.translate(x,y); ctx.rotate(t*0.8);
+      circlePath(ctx,0,0,r); ctx.clip();
+      const n = 6, s = (r*2)/n;
+      for(let ix=0; ix<n; ix++){
+        for(let iy=0; iy<n; iy++){
+          ctx.fillStyle = ((ix+iy)%2===0) ? "#f2ead9" : "#26333f";
+          ctx.fillRect(-r+ix*s, -r+iy*s, s+0.5, s+0.5);
+        }
+      }
+      ctx.restore();
+      ctx.save(); shade(ctx,x,y,r,.6); ctx.restore();
+    }
+  },
+  {
+    id:"rainbow", name:"Regenbogen", price:480, trail:"#e07a9a", parts:["#e05a5a","#e0a03c","#7ba57f","#5b8fb0","#9a6bb0"],
+    draw(ctx,x,y,r,t){
+      ctx.save();
+      const seg = 18;
+      for(let i=0;i<seg;i++){
+        const a0 = (i/seg)*Math.PI*2 + t*0.7;
+        const a1 = ((i+1)/seg)*Math.PI*2 + t*0.7;
+        ctx.fillStyle = "hsl("+((i*(360/seg))%360)+",62%,58%)";
+        ctx.beginPath(); ctx.moveTo(x,y); ctx.arc(x,y,r,a0,a1+0.02); ctx.closePath(); ctx.fill();
+      }
+      shade(ctx,x,y,r,.7);
+      ctx.restore();
+    }
+  },
+  {
+    id:"galaxy", name:"Weltall", price:560, trail:"#8b7ec4", parts:["#ffffff","#c6bbe8","#6a5aa8"],
+    draw(ctx,x,y,r,t){
+      ctx.save();
+      circlePath(ctx,x,y,r); ctx.clip();
+      const g = ctx.createRadialGradient(x+r*.2,y-r*.2,r*.08,x,y,r);
+      g.addColorStop(0,"#b3a6dd"); g.addColorStop(.45,"#3f3170"); g.addColorStop(1,"#120d24");
+      ctx.fillStyle=g; ctx.fillRect(x-r,y-r,r*2,r*2);
+      for(let i=0;i<16;i++){
+        const a = i*2.399 + t*0.3;                 // goldener Winkel für gleichmässige Streuung
+        const d = ((i*37)%100)/100 * r*0.95;
+        ctx.globalAlpha = 0.35 + 0.55*Math.abs(Math.sin(t*1.8+i));
+        ctx.fillStyle="#ffffff";
+        ctx.beginPath();
+        ctx.arc(x+Math.cos(a)*d, y+Math.sin(a)*d, 0.7 + ((i*13)%4)*0.35, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.restore();
+      ctx.save(); shade(ctx,x,y,r,.6); ctx.restore();
+    }
+  },
+  {
+    id:"gold", name:"Gold", price:700, trail:"#e0a03c", parts:["#fff0c2","#e0a03c","#9c6f18"],
+    draw(ctx,x,y,r,t){
+      ctx.save();
+      circlePath(ctx,x,y,r); ctx.clip();
+      const g = ctx.createLinearGradient(x-r,y-r,x+r,y+r);
+      g.addColorStop(0,"#fdeaa8"); g.addColorStop(.35,"#e0a03c");
+      g.addColorStop(.62,"#8f6415"); g.addColorStop(1,"#f0d089");
+      ctx.fillStyle=g; ctx.fillRect(x-r,y-r,r*2,r*2);
+      const p = ((t*0.45)%1)*2.6 - 1.3;
+      const sg = ctx.createLinearGradient(x+p*r-r*.4, y-r, x+p*r+r*.4, y+r);
+      sg.addColorStop(0,"rgba(255,255,255,0)");
+      sg.addColorStop(.5,"rgba(255,255,255,.6)");
+      sg.addColorStop(1,"rgba(255,255,255,0)");
+      ctx.fillStyle=sg; ctx.fillRect(x-r,y-r,r*2,r*2);
+      ctx.restore();
+      ctx.save(); shade(ctx,x,y,r,.55); ctx.restore();
+    }
+  },
+  {
+    id:"cool", name:"Sonnenbrille", price:900, trail:"#e0a03c", parts:["#e0a03c","#f2ead9"],
+    draw(ctx,x,y,r,t){ drawEmoji(ctx,"😎",x,y,r,t); }
+  },
+  {
+    id:"heart", name:"Herz", price:1200, trail:"#c25a41", parts:["#f0b0a0","#c25a41","#f2ead9"],
+    draw(ctx,x,y,r,t){
+      const pulse = 1 + Math.sin(t*5)*0.06;
+      drawEmoji(ctx,"❤️",x,y,r*pulse,t);
+    }
+  }
+];
+function getSkin(id){ return SKINS.find(s => s.id === id) || SKINS[0]; }
+
+/* ----------------------------------------------------------------
+   2b. WERBUNG (nur Wiederbelebung, sonst nirgends)
+   -----------------------------------------------------------------
+   Verwendet wird die Ad Placement API von Google (H5 Games Ads).
+   Sie gehört zu AdSense und kennt den Typ "reward", also Werbung
+   gegen eine Belohnung im Spiel.
+
+   Einrichtung:
+   1. AdSense-Konto anlegen und für H5 Games Ads freischalten lassen.
+   2. Unten die eigene Publisher-ID eintragen, Format ca-pub-...
+   3. Das Spiel auf einer echten Webseite über https ablegen.
+      Als Datei per Doppelklick (file://) lädt Google nichts, weil
+      die Bibliothek über dasselbe Protokoll wie die Seite geladen
+      wird. Lokal greift darum automatisch der Platzhalter.
+
+   Solange die ID leer ist, läuft der Platzhalter. Das Spiel
+   funktioniert also in beiden Fällen.
+   ---------------------------------------------------------------- */
+const AD_CONFIG = {
+  publisherId: "",       // z.B. "ca-pub-1234567890123456"
+  frequencyHint: "30s",  // Mindestabstand zwischen zwei Werbungen
+  testMode: false        // für eigene Tests, vor dem Livegang wieder aus
+};
+
+const Ads = {
+  real: false,           // true, sobald die Google-Bibliothek aktiv ist
+  busy: false,
+
+  init(){
+    const httpOk = location.protocol === "http:" || location.protocol === "https:";
+    if(!AD_CONFIG.publisherId || !httpOk) return;   // Platzhalter genügt
+
+    // AdSense-Code nachladen und die beiden API-Funktionen bereitstellen
+    const s = document.createElement("script");
+    s.async = true;
+    s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+    s.setAttribute("data-ad-client", AD_CONFIG.publisherId);
+    s.setAttribute("data-ad-frequency-hint", AD_CONFIG.frequencyHint);
+    if(AD_CONFIG.testMode) s.setAttribute("data-adbreak-test", "on");
+    s.crossOrigin = "anonymous";
+    s.onerror = () => { Ads.real = false; };
+    document.head.appendChild(s);
+
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adBreak = window.adConfig = function(o){ window.adsbygoogle.push(o); };
+    try{ window.adConfig({ preloadAdBreaks:"on", sound:"on" }); }catch(e){}
+    this.real = true;
+  },
+
+  // Belohnungswerbung zeigen. onReward läuft nur, wenn wirklich
+  // zu Ende geschaut wurde, sonst onFail mit einem Hinweistext.
+  showRewarded(onReward, onFail){
+    if(this.busy) return;
+    this.busy = true;
+    if(!this.real){ this.showPlaceholder(onReward, onFail); return; }
+
+    let granted = false;
+    try{
+      window.adBreak({
+        type: "reward",
+        name: "revive",
+        beforeAd: () => { if(actx) try{ actx.suspend(); }catch(e){} },
+        afterAd:  () => { if(actx && save.sound) try{ actx.resume(); }catch(e){} },
+        beforeReward: (showAdFn) => { showAdFn(); },     // Werbung wirklich starten
+        adViewed:    () => { granted = true; },
+        adDismissed: () => { granted = false; },
+        adBreakDone: (info) => {
+          Ads.busy = false;
+          if(granted || (info && info.breakStatus === "viewed")) onReward();
+          else onFail(info && info.breakStatus === "dismissed"
+                        ? "Werbung wurde abgebrochen"
+                        : "Gerade ist keine Werbung verfügbar");
+        }
+      });
+    }catch(e){
+      this.busy = false;
+      onFail("Werbung konnte nicht geladen werden");
+    }
+  },
+
+  // Lokaler Ersatz, damit die Wiederbelebung auch ohne Google spielbar ist
+  showPlaceholder(onReward, onFail){
+    let left = 5;
+    const num = document.getElementById("adCount");
+    num.textContent = left;
+    show("ad");
+    const timer = setInterval(() => {
+      left--;
+      num.textContent = Math.max(0, left);
+      if(left <= 0){
+        clearInterval(timer);
+        Ads.cancelPlaceholder = null;
+        Ads.busy = false;
+        onReward();
+      }
+    }, 1000);
+    // Abbruch durch den Spieler
+    Ads.cancelPlaceholder = () => {
+      clearInterval(timer);
+      Ads.cancelPlaceholder = null;
+      Ads.busy = false;
+      onFail("Abgebrochen");
+    };
+  },
+  cancelPlaceholder: null
+};
+Ads.init();
+
+/* ----------------------------------------------------------------
+   3. TON
+   ---------------------------------------------------------------- */
+let actx = null;
+function initAudio(){
+  try{
+    if(!actx){ const AC = window.AudioContext || window.webkitAudioContext; if(AC) actx = new AC(); }
+    if(actx && actx.state === "suspended") actx.resume();
+  }catch(e){ actx = null; }
+}
+function tone(freq, dur, type, vol, freqTo, delay){
+  if(!save.sound || !actx) return;
+  const t0 = actx.currentTime + (delay || 0);
+  const osc = actx.createOscillator();
+  const gain = actx.createGain();
+  osc.type = type || "triangle";
+  osc.frequency.setValueAtTime(freq, t0);
+  if(freqTo) osc.frequency.exponentialRampToValueAtTime(Math.max(25, freqTo), t0 + dur);
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.linearRampToValueAtTime(vol || 0.13, t0 + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(gain); gain.connect(actx.destination);
+  osc.start(t0); osc.stop(t0 + dur + 0.03);
+}
+const sfx = {
+  jump(){    tone(392, 0.10, "triangle", 0.12, 620); },
+  ok(){      tone(494, 0.09, "sine",     0.10, 588); },
+  perfect(){ tone(659, 0.10, "triangle", 0.12);
+             tone(880, 0.12, "triangle", 0.10, null, 0.07);
+             tone(1175,0.14, "sine",     0.08, null, 0.14); },
+  coin(){    tone(988, 0.07, "triangle", 0.08); tone(1319, 0.09, "triangle", 0.06, null, 0.06); },
+  over(){    tone(300, 0.5,  "sine",     0.16, 90); tone(150, 0.55, "triangle", 0.09, 60, 0.05); },
+  click(){   tone(560, 0.05, "sine",     0.06); }
+};
+
+/* ----------------------------------------------------------------
+   4. CANVAS UND VIRTUELLES KOORDINATENSYSTEM
+   Die Logik rechnet immer in 420 x 720 Einheiten und wird passend
+   skaliert. So ist das Spiel auf jedem Gerät gleich schwer.
+   ---------------------------------------------------------------- */
+const VW = 420, VH = 720;
+const cv  = document.getElementById("game");
+const ctx = cv.getContext("2d");
+const view = { scale:1, ox:0, oy:0, dpr:1, w:0, h:0 };
+
+function resize(){
+  const w = window.innerWidth, h = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width  = Math.round(w * dpr);
+  cv.height = Math.round(h * dpr);
+  cv.style.width  = w + "px";
+  cv.style.height = h + "px";
+  view.dpr = dpr; view.w = w; view.h = h;
+  view.scale = Math.min(w / VW, h / VH);
+  view.ox = (w - VW * view.scale) / 2;
+  view.oy = (h - VH * view.scale) / 2;
+}
+window.addEventListener("resize", resize);
+window.addEventListener("orientationchange", () => setTimeout(resize, 120));
+resize();
+
+/* ----------------------------------------------------------------
+   5. SPIELZUSTAND UND LOGIK
+   ---------------------------------------------------------------- */
+const LINE_BASE = VH * 0.63;   // Ruheposition der ersten Linie
+const BALL_R    = 18;
+const APEX      = 82;          // wie weit der Ball über die nächste Linie steigt
+const M_PER_PX  = 1 / 14;      // Umrechnung Pixel in Höhenmeter
+
+let screen = "menu";
+let last = performance.now();
+let clock = 0;
+
+const game = {
+  mode:"classic",
+  score:0, runCoins:0,
+  gravity:1150, tol:40,
+  lineY:LINE_BASE, lineT:0, lineAmp:0,     // nur Modus classic
+  lines:[], ti:0, cam:0, height:0, startRef:0,   // nur Modus endless
+  armed:false, startLock:0,
+  revives:0, countdown:0,        // Wiederbelebungen übrig, Countdown vor dem Weiterspielen
+  shake:0, flash:0,
+  ball:{ x:VW/2, y:110, vy:0, r:BALL_R, squash:0 },
+  trail:[], particles:[], popups:[], rings:[]
+};
+
+/* ---- Schwierigkeit ---- */
+function updateDifficultyClassic(){
+  game.gravity = Math.min(2900, 1150 + game.score * 22);
+  game.tol     = Math.max(15, 40 - game.score * 0.75);
+  const target = game.score >= 10 ? Math.min(95, (game.score - 10) * 7) : 0;
+  game.lineAmp += (target - game.lineAmp) * 0.02;
+}
+function updateDifficultyEndless(){
+  const m = game.height;
+  game.gravity = Math.min(2600, 1100 + m * 2.2);
+  game.tol     = Math.max(16, 42 - m * 0.055);
+}
+
+/* ---- Linien für den Aufstieg erzeugen ---- */
+function makeLine(baseY, index){
+  const m = game.height;
+  // Ab etwa 120 Metern beginnen die Linien leicht zu schwingen
+  const amp = index < 6 ? 0 : Math.min(18, Math.max(0, (m - 120) * 0.06));
+  return {
+    baseY: baseY,
+    y: baseY,
+    amp: amp,
+    speed: 0.6 + Math.random() * 0.6,
+    phase: Math.random() * Math.PI * 2,
+    coin: index > 1 && Math.random() < 0.32,     // Bonusmünze auf der Linie
+    coinX: 70 + Math.random() * (VW - 140),
+    taken: false
+  };
+}
+function ensureLines(){
+  // Immer genug Linien im Voraus bereithalten
+  while(game.lines.length < game.ti + 6){
+    const prev = game.lines[game.lines.length - 1];
+    const gap  = 180 + Math.min(90, game.height * 0.25) + (Math.random() * 50 - 25);
+    game.lines.push(makeLine(prev.baseY - gap, game.lines.length));
+  }
+}
+
+const MAX_REVIVES = 1;          // eine Wiederbelebung pro Lauf
+
+function resetGame(mode){
+  game.mode = mode;
+  game.score = 0; game.runCoins = 0;
+  game.revives = MAX_REVIVES; game.countdown = 0;
+  game.armed = true; game.startLock = 0.45;
+  game.shake = 0; game.flash = 0;
+  game.ball.x = VW/2; game.ball.vy = 0; game.ball.squash = 0;
+  game.trail.length = 0; game.particles.length = 0; game.popups.length = 0; game.rings.length = 0;
+  game.height = 0;
+
+  if(mode === "classic"){
+    game.lineT = 0; game.lineAmp = 0; game.lineY = LINE_BASE;
+    game.cam = 0;
+    game.ball.y = 110;
+    updateDifficultyClassic();
+  }else{
+    game.lines = [ makeLine(LINE_BASE, 0) ];
+    game.ti = 0;
+    game.startRef = LINE_BASE;
+    game.cam = LINE_BASE - VH * 0.60;
+    game.ball.y = LINE_BASE - 340;
+    updateDifficultyEndless();
+    ensureLines();
+  }
+}
+
+/* ---- Bewertung eines Treffers, für beide Modi gleich ---- */
+function scoreHit(d, tol){
+  const rel = d / tol;
+  if(rel <= 0.34) return { pts:3, label:"PERFEKT", color:"#e0a03c" };
+  if(rel <= 0.67) return { pts:2, label:"GUT",     color:"#7ba57f" };
+  return            { pts:1, label:"OKAY",    color:"#c25a41" };
+}
+function applyHit(res, atY){
+  game.score    += res.pts;
+  game.runCoins += res.pts;
+  save.coins    += res.pts;
+  game.ball.squash = 1;
+  game.armed = false;
+
+  game.popups.push({ text:res.label, sub:"+"+res.pts, y:atY - 48, t:0, color:res.color });
+  game.rings.push({ x:game.ball.x, y:atY, r:game.tol, t:0, color:res.color });
+
+  const skin = getSkin(save.equipped);
+  if(skin.parts.length) spawnParticles(game.ball.x, atY, skin.parts, res.pts === 3 ? 24 : 14);
+
+  if(res.pts === 3){ game.shake = 9; game.flash = 0.45; sfx.perfect(); }
+  else { sfx.jump(); if(res.pts === 2) sfx.ok(); }
+}
+
+/* ---- Modus classic ---- */
+function jumpImpulseClassic(){
+  const rise = Math.min(VH * 0.44, Math.max(150, game.lineY - 90));
+  return -Math.sqrt(2 * game.gravity * rise);
+}
+function judgeClassic(){
+  const d = Math.abs(game.ball.y - game.lineY);
+  applyHit(scoreHit(d, game.tol), game.lineY);
+  game.ball.vy = jumpImpulseClassic();
+  updateDifficultyClassic();
+  updateHud();
+}
+
+/* ---- Modus endless ---- */
+function judgeEndless(){
+  const line = game.lines[game.ti];
+  const d = Math.abs(game.ball.y - line.y);
+  applyHit(scoreHit(d, game.tol), line.y);
+
+  // Bonusmünze auf dieser Linie einsammeln
+  if(line.coin && !line.taken){
+    line.taken = true;
+    save.coins += 5; game.runCoins += 5;
+    spawnParticles(line.coinX, line.y, ["#fff0c2","#e0a03c","#9c6f18"], 16);
+    game.popups.push({ text:"+5", sub:"MÜNZEN", y:line.y - 96, t:0, color:"#e0a03c" });
+    sfx.coin();
+  }
+
+  // Ziel ist nun die nächste Linie darüber
+  game.ti++;
+  ensureLines();
+  const next = game.lines[game.ti];
+  const rise = Math.max(120, game.ball.y - (next.baseY - APEX));
+  game.ball.vy = -Math.sqrt(2 * game.gravity * rise);
+
+  updateDifficultyEndless();
+  updateHud();
+}
+
+function gameOver(reason){
+  screen = "over";
+  sfx.over();
+  const endless = game.mode === "endless";
+  const value   = endless ? Math.floor(game.height) : game.score;
+  const record  = endless ? save.bestHeight : save.best;
+  const isRecord = value > record;
+  if(isRecord){
+    if(endless) save.bestHeight = value; else save.best = value;
+  }
+  persist();
+
+  spawnParticles(game.ball.x, game.ball.y, ["#c25a41","#e0a03c","#f2ead9"], 26);
+  game.shake = 12;
+
+  document.getElementById("goMode").textContent   = endless ? "Aufstieg" : "Klassisch";
+  document.getElementById("goReason").textContent = reason;
+  document.getElementById("kMain").textContent    = endless ? "Höhe" : "Punkte";
+  document.getElementById("goMain").textContent   = endless ? value + " m" : value;
+  document.getElementById("kBest").textContent    = "Rekord";
+  document.getElementById("goBest").textContent   = endless
+      ? save.bestHeight + " m" : save.best;
+  document.getElementById("goCoins").textContent  = "+" + game.runCoins;
+  document.getElementById("goRecord").classList.toggle("hidden", !isRecord);
+
+  // Weiterspielen nur anbieten, solange eine Wiederbelebung übrig ist
+  const canRevive = game.revives > 0;
+  document.getElementById("reviveNote").textContent = "Kurze Werbung, einmal pro Lauf";
+  document.getElementById("btnRevive").classList.toggle("hidden", !canRevive);
+  document.getElementById("reviveNote").classList.toggle("hidden", !canRevive);
+  document.getElementById("btnAgain").className = canRevive ? "btn ghost" : "btn";
+
+  show("over");
+}
+
+/* ---- Weiterspielen nach der Werbung ---- */
+function revive(){
+  game.revives--;
+  const b = game.ball;
+  b.vy = 0; b.squash = 0;
+  game.trail.length = 0;
+  game.armed = true;
+  game.startLock = 0;
+  game.countdown = 2.4;                    // erst zählen, dann fällt der Ball
+
+  if(game.mode === "classic"){
+    // Gleiche Fallhöhe wie nach einem normalen Sprung, damit das
+    // Zeitfenster exakt so gross ist wie im Spielverlauf.
+    const rise = Math.min(VH * 0.44, Math.max(150, game.lineY - 90));
+    b.y = game.lineY - rise;
+  }else{
+    b.y = game.lines[game.ti].y - APEX;
+  }
+  show("play");
+  updateHud();
+}
+
+function requestRevive(){
+  sfx.click();
+  const btn = document.getElementById("btnRevive");
+  btn.disabled = true;
+  btn.textContent = "Werbung lädt";
+  Ads.showRewarded(
+    () => { btn.disabled = false; btn.textContent = "Weiterspielen"; revive(); },
+    (grund) => {
+      btn.disabled = false;
+      btn.textContent = "Weiterspielen";
+      document.getElementById("reviveNote").textContent = grund + ", nochmal versuchen";
+      show("over");
+    }
+  );
+}
+
+function press(){
+  initAudio();
+  if(screen !== "play") return;
+  if(game.countdown > 0) return;
+  if(game.startLock > 0) return;
+  if(!game.armed) return;                        // Ball steigt gerade, Eingabe zählt nicht
+
+  if(game.mode === "classic"){
+    const d = Math.abs(game.ball.y - game.lineY);
+    if(d <= game.tol) judgeClassic();
+    else gameOver(game.ball.y < game.lineY ? "Zu früh" : "Zu spät");
+  }else{
+    const line = game.lines[game.ti];
+    const d = Math.abs(game.ball.y - line.y);
+    if(d <= game.tol) judgeEndless();
+    else gameOver(game.ball.y < line.y ? "Zu früh" : "Zu spät");
+  }
+}
+
+function spawnParticles(x, y, colors, count){
+  for(let i=0;i<count;i++){
+    const a = Math.random() * Math.PI * 2;
+    const sp = 55 + Math.random() * 190;
+    game.particles.push({
+      x:x, y:y,
+      vx:Math.cos(a) * sp,
+      vy:Math.sin(a) * sp - 35,
+      life:0, max:0.45 + Math.random() * 0.5,
+      size:1.5 + Math.random() * 3,
+      color:colors[(Math.random() * colors.length) | 0]
+    });
+  }
+}
+
+/* ---- Update pro Bild ---- */
+function update(dt){
+  clock += dt;
+
+  for(let i = game.particles.length - 1; i >= 0; i--){
+    const p = game.particles[i];
+    p.life += dt;
+    if(p.life >= p.max){ game.particles.splice(i,1); continue; }
+    p.vy += 620 * dt;
+    p.x  += p.vx * dt;
+    p.y  += p.vy * dt;
+  }
+  for(let i = game.popups.length - 1; i >= 0; i--){
+    game.popups[i].t += dt;
+    if(game.popups[i].t > 0.85) game.popups.splice(i,1);
+  }
+  for(let i = game.rings.length - 1; i >= 0; i--){
+    game.rings[i].t += dt;
+    if(game.rings[i].t > 0.45) game.rings.splice(i,1);
+  }
+  game.shake = Math.max(0, game.shake - dt * 38);
+  game.flash = Math.max(0, game.flash - dt * 1.8);
+
+  if(screen !== "play") return;
+
+  // Countdown nach dem Weiterspielen: der Ball wartet in der Luft
+  if(game.countdown > 0){
+    game.countdown -= dt;
+    return;
+  }
+
+  if(game.startLock > 0) game.startLock -= dt;
+
+  const b = game.ball;
+  b.vy += game.gravity * dt;
+  b.y  += b.vy * dt;
+  b.squash = Math.max(0, b.squash - dt * 4.5);
+  if(b.vy >= 0) game.armed = true;               // fällt wieder, nächster Druck zählt
+
+  if(game.mode === "classic") updateClassic(dt);
+  else                        updateEndless(dt);
+
+  game.trail.push({ x:b.x, y:b.y, t:0 });
+  if(game.trail.length > 20) game.trail.shift();
+  for(const t of game.trail) t.t += dt;
+}
+
+function updateClassic(dt){
+  game.lineT += dt;
+  game.lineY = LINE_BASE + Math.sin(game.lineT * 1.05) * game.lineAmp;
+  const b = game.ball;
+  if(game.armed && b.y - game.lineY > game.tol) gameOver("Verpasst");
+  else if(b.y - b.r > VH + 40) gameOver("Verpasst");
+}
+
+function updateEndless(dt){
+  const b = game.ball;
+
+  // Linien schwingen leicht
+  for(let i = Math.max(0, game.ti - 2); i < game.lines.length; i++){
+    const L = game.lines[i];
+    L.y = L.baseY + (L.amp ? Math.sin(clock * L.speed + L.phase) * L.amp : 0);
+  }
+
+  const target = game.lines[game.ti];
+
+  // Höhe in Metern mitzählen
+  const climbed = (game.startRef - b.y) * M_PER_PX;
+  if(climbed > game.height){
+    const before = Math.floor(game.height);
+    game.height = climbed;
+    updateDifficultyEndless();
+    // HUD nur bei jedem vollen Meter neu schreiben
+    if(Math.floor(game.height) !== before) updateHud();
+  }
+
+  // Kamera folgt der Ziellinie, ruhig und nur nach oben
+  const desired = target.y - VH * 0.60;
+  game.cam += (desired - game.cam) * Math.min(1, dt * 3.6);
+
+  if(game.armed && b.y - target.y > game.tol) gameOver("Verpasst");
+  else if(b.y - game.cam > VH + 60) gameOver("Abgestürzt");
+}
+
+/* ----------------------------------------------------------------
+   6. ZEICHNEN
+   ---------------------------------------------------------------- */
+function drawBackground(){
+  const g = ctx.createLinearGradient(0, 0, 0, view.h);
+  g.addColorStop(0,   "#1b2530");
+  g.addColorStop(0.6, "#151f28");
+  g.addColorStop(1,   "#101820");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, view.w, view.h);
+  const v = ctx.createRadialGradient(view.w/2, view.h/2, Math.min(view.w,view.h)*0.25,
+                                     view.w/2, view.h/2, Math.max(view.w,view.h)*0.75);
+  v.addColorStop(0, "rgba(0,0,0,0)");
+  v.addColorStop(1, "rgba(0,0,0,.45)");
+  ctx.fillStyle = v;
+  ctx.fillRect(0, 0, view.w, view.h);
+}
+
+// Kreidelinien in Weltkoordinaten, damit sie im Aufstieg mitwandern
+function drawCourt(){
+  ctx.save();
+  ctx.strokeStyle = "rgba(242,234,217,.055)";
+  ctx.lineWidth = 1;
+  const start = Math.floor(game.cam / 80) * 80;
+  for(let y = start; y < game.cam + VH + 80; y += 80){
+    ctx.beginPath(); ctx.moveTo(26, y); ctx.lineTo(VW - 26, y); ctx.stroke();
+  }
+  // Höhenmarken im Aufstieg
+  if(game.mode === "endless"){
+    ctx.fillStyle = "rgba(242,234,217,.22)";
+    ctx.font = "11px 'Segoe UI',system-ui,sans-serif";
+    ctx.textAlign = "left";
+    const step = 280;
+    const first = Math.ceil((game.startRef - (game.cam + VH)) / step) * step;
+    for(let d = first; d < game.startRef - game.cam + 80; d += step){
+      if(d <= 0) continue;
+      const wy = game.startRef - d;
+      ctx.fillText(Math.round(d * M_PER_PX) + " m", 22, wy - 5);
+    }
+  }
+  ctx.restore();
+}
+
+function drawFrame(){
+  // Rahmen bleibt fest auf dem Bildschirm
+  ctx.save();
+  ctx.strokeStyle = "rgba(242,234,217,.12)";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(14.5, 14.5, VW - 29, VH - 29);
+  ctx.restore();
+}
+
+// Eine aktive Linie samt Toleranzfenster
+function drawActiveLine(y, tol){
+  ctx.save();
+  const bg = ctx.createLinearGradient(0, y - tol, 0, y + tol);
+  bg.addColorStop(0,   "rgba(242,234,217,0)");
+  bg.addColorStop(0.5, "rgba(242,234,217,.10)");
+  bg.addColorStop(1,   "rgba(242,234,217,0)");
+  ctx.fillStyle = bg;
+  ctx.fillRect(15, y - tol, VW - 30, tol * 2);
+
+  const pz = tol * 0.34;
+  ctx.fillStyle = "rgba(224,160,60,.16)";
+  ctx.fillRect(15, y - pz, VW - 30, pz * 2);
+
+  ctx.strokeStyle = "#f2ead9";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(15, y); ctx.lineTo(VW - 15, y); ctx.stroke();
+
+  ctx.fillStyle = "#e0a03c";
+  ctx.fillRect(15, y - tol, 4, tol * 2);
+  ctx.fillRect(VW - 19, y - tol, 4, tol * 2);
+  ctx.fillStyle = "rgba(242,234,217,.5)";
+  ctx.fillRect(15, y - tol, 14, 1);
+  ctx.fillRect(15, y + tol - 1, 14, 1);
+  ctx.fillRect(VW - 29, y - tol, 14, 1);
+  ctx.fillRect(VW - 29, y + tol - 1, 14, 1);
+  ctx.restore();
+}
+
+// Bonusmünze auf einer Linie
+function drawCoin(x, y, t){
+  const r = 8 + Math.sin(t * 4) * 0.6;
+  ctx.save();
+  ctx.fillStyle = "#e0a03c";
+  ctx.beginPath(); ctx.ellipse(x, y, r * Math.abs(Math.cos(t * 2)) * 0.6 + r * 0.4, r, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "rgba(255,240,194,.9)"; ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawLinesEndless(){
+  const from = Math.max(0, game.ti - 3);
+  const to   = Math.min(game.lines.length, game.ti + 5);
+  for(let i = from; i < to; i++){
+    const L = game.lines[i];
+    const sy = L.y - game.cam;
+    if(sy < -60 || sy > VH + 60) continue;
+
+    if(i === game.ti){
+      drawActiveLine(L.y, game.tol);
+    }else{
+      ctx.save();
+      ctx.strokeStyle = i < game.ti ? "rgba(242,234,217,.12)" : "rgba(242,234,217,.30)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash(i < game.ti ? [4,8] : [10,8]);
+      ctx.beginPath(); ctx.moveTo(15, L.y); ctx.lineTo(VW - 15, L.y); ctx.stroke();
+      ctx.restore();
+    }
+    if(L.coin && !L.taken) drawCoin(L.coinX, L.y, clock + i);
+  }
+}
+
+function drawTrail(){
+  const skin = getSkin(save.equipped);
+  ctx.save();
+  for(let i = 0; i < game.trail.length; i++){
+    const p = game.trail[i];
+    const k = i / game.trail.length;
+    ctx.globalAlpha = 0.16 * k * k;
+    ctx.fillStyle = skin.trail;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, game.ball.r * (0.3 + k * 0.7), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawBall(){
+  const b = game.ball;
+  const skin = getSkin(save.equipped);
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.ellipse(b.x, b.y + b.r * 1.15, b.r * 0.75, b.r * 0.2, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(b.x, b.y);
+  ctx.scale(1 - b.squash * 0.16, 1 + b.squash * 0.2);
+  skin.draw(ctx, 0, 0, b.r, clock);
+  ctx.restore();
+}
+
+function drawParticles(){
+  ctx.save();
+  for(const p of game.particles){
+    const k = 1 - p.life / p.max;
+    ctx.globalAlpha = Math.max(0, k) * 0.9;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.size * k, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawRings(){
+  for(const r of game.rings){
+    const k = r.t / 0.45;
+    ctx.save();
+    ctx.globalAlpha = (1 - k) * 0.6;
+    ctx.strokeStyle = r.color;
+    ctx.lineWidth = 2.5 * (1 - k) + 0.5;
+    ctx.beginPath();
+    ctx.ellipse(r.x, r.y, 28 + k * 130, r.r * (0.6 + k * 0.8), 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawPopups(){
+  for(const p of game.popups){
+    const k = p.t / 0.85;
+    const pop = k < 0.16 ? 1 + (0.16 - k) * 2.4 : 1;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, 1 - k * k);
+    ctx.translate(VW / 2, p.y - k * 30);
+    ctx.scale(pop, pop);
+    ctx.textAlign = "center";
+    ctx.fillStyle = p.color;
+    ctx.font = "400 30px Georgia,'Times New Roman',serif";
+    ctx.fillText(p.text, 0, 0);
+    ctx.font = "600 14px 'Segoe UI',system-ui,sans-serif";
+    ctx.fillText(p.sub, 0, 22);
+    ctx.restore();
+  }
+}
+
+function draw(){
+  ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0);
+  drawBackground();
+
+  const sx = (Math.random() - 0.5) * game.shake;
+  const sy = (Math.random() - 0.5) * game.shake;
+  ctx.save();
+  ctx.translate(view.ox + sx, view.oy + sy);
+  ctx.scale(view.scale, view.scale);
+
+  drawFrame();
+
+  // Ab hier wird in Weltkoordinaten gezeichnet. Im Modus classic
+  // ist die Kamera immer null, dort ändert sich also nichts.
+  ctx.save();
+  ctx.translate(0, -game.cam);
+
+  drawCourt();
+
+  if(screen === "play" || screen === "over" || screen === "ad"){
+    if(game.mode === "classic") drawActiveLine(game.lineY, game.tol);
+    else                        drawLinesEndless();
+    drawTrail();
+    drawRings();
+    drawBall();
+    drawPopups();
+  }
+  drawParticles();
+
+  ctx.restore();
+
+  // Countdown nach dem Weiterspielen, fest über dem Spielfeld
+  if(screen === "play" && game.countdown > 0){
+    const n = Math.ceil(game.countdown - 0.4);
+    const frac = (game.countdown - 0.4) % 1;
+    ctx.save();
+    ctx.textAlign = "center";
+    if(n > 0){
+      ctx.globalAlpha = 0.35 + frac * 0.6;
+      ctx.fillStyle = "#f2ead9";
+      ctx.font = "400 96px Georgia,'Times New Roman',serif";
+      ctx.fillText(n, VW/2, VH * 0.42);
+    }else{
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = "#e0a03c";
+      ctx.font = "400 54px Georgia,'Times New Roman',serif";
+      ctx.fillText("Los", VW/2, VH * 0.42);
+    }
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = "#8d9aa6";
+    ctx.font = "600 13px 'Segoe UI',system-ui,sans-serif";
+    ctx.fillText("WEITER GEHT ES", VW/2, VH * 0.42 + 34);
+    ctx.restore();
+  }
+
+  ctx.restore();
+
+  if(game.flash > 0){
+    ctx.fillStyle = "rgba(242,234,217," + (game.flash * 0.10).toFixed(3) + ")";
+    ctx.fillRect(0, 0, view.w, view.h);
+  }
+}
+
+function loop(now){
+  let dt = (now - last) / 1000;
+  last = now;
+  if(dt > 0.05) dt = 0.05;        // Begrenzung nach einem Tab-Wechsel
+  update(dt);
+  draw();
+  if(screen === "shop") drawShopPreviews();
+  if(screen === "menu") drawModeIcons();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ----------------------------------------------------------------
+   7. SCREENS, HUD UND EINGABE
+   ---------------------------------------------------------------- */
+const el = {
+  hud:      document.getElementById("hud"),
+  menu:     document.getElementById("scrMenu"),
+  over:     document.getElementById("scrOver"),
+  shop:     document.getElementById("scrShop"),
+  ad:       document.getElementById("scrAd"),
+  lblScore: document.getElementById("lblScore"),
+  lblBest:  document.getElementById("lblBest"),
+  vScore:   document.getElementById("vScore"),
+  vBest:    document.getElementById("vBest"),
+  vCoins:   document.getElementById("vCoins"),
+  shopCoins:document.getElementById("shopCoins"),
+  grid:     document.getElementById("shopGrid"),
+  sound:    document.getElementById("btnSound"),
+  mbClassic:document.getElementById("mbClassic"),
+  mbEndless:document.getElementById("mbEndless")
+};
+
+function updateHud(){
+  if(game.mode === "endless"){
+    el.lblScore.textContent = "Höhe";
+    el.vScore.textContent   = Math.floor(game.height) + " m";
+    el.vBest.textContent    = Math.max(save.bestHeight, Math.floor(game.height)) + " m";
+  }else{
+    el.lblScore.textContent = "Punkte";
+    el.vScore.textContent   = game.score;
+    el.vBest.textContent    = Math.max(save.best, game.score);
+  }
+  el.vCoins.textContent = save.coins;
+}
+
+function updateMenuRecords(){
+  el.mbClassic.textContent = save.best;
+  el.mbEndless.textContent = save.bestHeight + " m";
+}
+
+function show(which){
+  screen = which;
+  el.menu.classList.toggle("hidden", which !== "menu");
+  el.over.classList.toggle("hidden", which !== "over");
+  el.shop.classList.toggle("hidden", which !== "shop");
+  el.ad  .classList.toggle("hidden", which !== "ad");
+  el.hud .classList.toggle("hidden", which !== "play");
+  if(which === "shop") renderShop();
+  if(which === "menu") updateMenuRecords();
+}
+
+function startGame(mode){
+  initAudio();
+  resetGame(mode || game.mode);
+  updateHud();
+  show("play");
+}
+
+let lastScreenBeforeShop = "menu";
+
+document.getElementById("btnClassic").addEventListener("click", () => { sfx.click(); startGame("classic"); });
+document.getElementById("btnEndless").addEventListener("click", () => { sfx.click(); startGame("endless"); });
+document.getElementById("btnAgain").addEventListener("click",   () => { sfx.click(); startGame(game.mode); });
+document.getElementById("btnRevive").addEventListener("click",  () => { requestRevive(); });
+document.getElementById("btnAdCancel").addEventListener("click", () => {
+  sfx.click();
+  if(Ads.cancelPlaceholder) Ads.cancelPlaceholder();
+  else { Ads.busy = false; show("over"); }
+});
+document.getElementById("btnMenu").addEventListener("click",    () => { sfx.click(); show("menu"); });
+document.getElementById("btnShopFromMenu").addEventListener("click", () => { sfx.click(); lastScreenBeforeShop = "menu"; show("shop"); });
+document.getElementById("btnShopFromOver").addEventListener("click", () => { sfx.click(); lastScreenBeforeShop = "over"; show("shop"); });
+document.getElementById("btnShopBack").addEventListener("click", () => { sfx.click(); show(lastScreenBeforeShop); });
+
+function refreshSoundBtn(){
+  el.sound.textContent = save.sound ? "♪" : "✕";
+  el.sound.classList.toggle("off", !save.sound);
+}
+el.sound.addEventListener("click", (e) => {
+  e.stopPropagation();
+  save.sound = !save.sound;
+  persist();
+  refreshSoundBtn();
+  if(save.sound){ initAudio(); sfx.click(); }
+});
+refreshSoundBtn();
+
+cv.addEventListener("pointerdown", (e) => { e.preventDefault(); press(); });
+cv.addEventListener("touchstart",  (e) => { e.preventDefault(); }, { passive:false });
+
+window.addEventListener("keydown", (e) => {
+  if(e.code === "Space" || e.code === "ArrowUp" || e.key === " "){
+    e.preventDefault();
+    initAudio();
+    if(screen === "play")      press();
+    else if(screen === "over") startGame(game.mode);
+    // Im Menü wird bewusst nichts gestartet, dort wird zuerst der Modus gewählt.
+  }
+});
+document.addEventListener("visibilitychange", () => { last = performance.now(); });
+
+/* ---- Kleine Vorschau-Symbole der beiden Modi ---- */
+const icoClassic = document.getElementById("icoClassic").getContext("2d");
+const icoEndless = document.getElementById("icoEndless").getContext("2d");
+function drawModeIcons(){
+  const skin = getSkin(save.equipped);
+  // Klassisch: eine Linie, Ball schwingt darum
+  let c = icoClassic;
+  c.setTransform(2,0,0,2,0,0); c.clearRect(0,0,34,34);
+  c.strokeStyle = "rgba(242,234,217,.75)"; c.lineWidth = 1.4;
+  c.beginPath(); c.moveTo(3,22); c.lineTo(31,22); c.stroke();
+  skin.draw(c, 17, 22 + Math.sin(clock*2.2)*7, 6, clock);
+  // Aufstieg: mehrere Linien, Ball steigt
+  c = icoEndless;
+  c.setTransform(2,0,0,2,0,0); c.clearRect(0,0,34,34);
+  const off = (clock * 9) % 11;
+  c.strokeStyle = "rgba(242,234,217,.55)"; c.lineWidth = 1.2;
+  for(let i=0;i<4;i++){
+    const y = 3 + i*11 + off;
+    if(y > 33) continue;
+    c.globalAlpha = 1 - i*0.18;
+    c.beginPath(); c.moveTo(4,y); c.lineTo(30,y); c.stroke();
+  }
+  c.globalAlpha = 1;
+  skin.draw(c, 17, 20, 6, clock);
+}
+
+/* ----------------------------------------------------------------
+   8. BALLKISTE
+   ---------------------------------------------------------------- */
+let previewCanvases = [];
+
+function renderShop(){
+  el.shopCoins.textContent = save.coins + " Münzen";
+  el.grid.innerHTML = "";
+  previewCanvases = [];
+
+  for(const skin of SKINS){
+    const unlocked = save.unlocked.indexOf(skin.id) !== -1;
+    const equipped = save.equipped === skin.id;
+
+    const card = document.createElement("div");
+    card.className = "card" + (equipped ? " equipped" : "") + (unlocked ? "" : " locked");
+
+    const prev = document.createElement("canvas");
+    prev.className = "prev";
+    prev.width = 156; prev.height = 156;             // doppelte Auflösung für scharfe Kanten
+    prev.style.width = "78px"; prev.style.height = "78px";
+    card.appendChild(prev);
+    previewCanvases.push({ x:prev.getContext("2d"), skin:skin });
+
+    const nm = document.createElement("div");
+    nm.className = "nm"; nm.textContent = skin.name;
+    card.appendChild(nm);
+
+    const fx = document.createElement("div");
+    fx.className = "fx"; fx.textContent = skin.parts.length ? "mit Funken" : "";
+    card.appendChild(fx);
+
+    const btn = document.createElement("button");
+    if(!unlocked){
+      btn.className = "buy";
+      btn.textContent = skin.price + " Münzen";
+      btn.disabled = save.coins < skin.price;
+      btn.addEventListener("click", () => buySkin(skin.id));
+    } else if(equipped){
+      btn.className = "on";
+      btn.textContent = "Im Einsatz";
+    } else {
+      btn.className = "equip";
+      btn.textContent = "Auswählen";
+      btn.addEventListener("click", () => equipSkin(skin.id));
+    }
+    card.appendChild(btn);
+    el.grid.appendChild(card);
+  }
+}
+
+function drawShopPreviews(){
+  for(const p of previewCanvases){
+    const c = p.x;
+    c.setTransform(2, 0, 0, 2, 0, 0);
+    c.clearRect(0, 0, 78, 78);
+    c.fillStyle = "rgba(242,234,217,.05)";
+    c.beginPath(); c.arc(39, 39, 33, 0, Math.PI * 2); c.fill();
+    c.save();
+    p.skin.draw(c, 39, 39, 24, clock);
+    c.restore();
+  }
+}
+
+function buySkin(id){
+  const skin = getSkin(id);
+  if(save.unlocked.indexOf(id) !== -1) return;
+  if(save.coins < skin.price) return;
+  save.coins -= skin.price;
+  save.unlocked.push(id);
+  save.equipped = id;
+  persist();
+  sfx.coin();
+  renderShop();
+  updateHud();
+}
+
+function equipSkin(id){
+  if(save.unlocked.indexOf(id) === -1) return;
+  save.equipped = id;
+  persist();
+  sfx.click();
+  renderShop();
+}
+
+/* ---- Startzustand ---- */
+updateHud();
+show("menu");
+</script>
+</body>
+</html>

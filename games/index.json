@@ -158,5 +158,13 @@
     "thumbnail": "assets/img/stack.png",
     "url": "https://www.coolmathgames.com/de/0-stack-game",
     "featured": false
+  },
+  {
+    "id": 21,
+    "title": "Treffpunkt",
+    "category": "Geschicklichkeit",
+    "thumbnail": "assets/img/treffpunkt.png",
+    "url": "games/treffpunkt/treffpunkt-v3.html",
+    "featured": true
   }
 ]
