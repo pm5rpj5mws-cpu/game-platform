@@ -306,7 +306,13 @@ canvas#game{ display:block; width:100%; height:100%; touch-action:none; }
 /* ----------------------------------------------------------------
    1. SPEICHER
    ---------------------------------------------------------------- */
-const SAVE_KEY = "treffpunkt.save.v1";
+function currentUserKey() {
+  try {
+    if (window.parent && window.parent.LG) return window.parent.LG.userKey();
+  } catch (e) {}
+  return "gast";
+}
+const SAVE_KEY = "treffpunkt.save.v1." + currentUserKey();
 const DEFAULT_SAVE = { coins:0, best:0, bestHeight:0, sound:true, unlocked:["klassik"], equipped:"klassik" };
 let memoryFallback = null;
 

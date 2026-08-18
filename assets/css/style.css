@@ -433,3 +433,103 @@ body.is-game-page {
   .sidebar { display: none; }
   .bottom-row { display: none; }
 }
+
+/* ============================================
+   Login-Modal
+   ============================================ */
+.login-modal.hidden { display: none; }
+
+.login-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.login-modal__box {
+  position: relative;
+  z-index: 1;
+  width: 300px;
+  max-width: 90vw;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.5);
+}
+
+.login-modal__box h3 {
+  font-family: 'Orbitron', sans-serif;
+  color: var(--text);
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.login-modal__box input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.login-modal__box input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.login-modal__toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-top: -4px;
+}
+
+.login-modal__error {
+  color: #ff6b6b;
+  font-size: 0.8rem;
+}
+
+.login-modal__error.hidden { display: none; }
+
+.login-modal__submit {
+  padding: 10px;
+  border-radius: 24px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-modal__submit:hover { box-shadow: 0 0 16px var(--accent-glow); }
+
+.login-modal__cancel {
+  padding: 8px;
+  border-radius: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.login-modal__cancel:hover { color: var(--text); }

@@ -98,6 +98,7 @@ canvas{ display:block; width:100%; height:100%; touch-action:none; }
     <div class="rule"></div>
     <div class="tag">Arcade · Klassiker</div>
     <div class="hint">Bewege das Paddle mit der <b>Maus</b> oder dem <b>Finger</b>.<br>Zerstöre alle Blöcke — lass den Ball nicht fallen!</div>
+    <div class="label" id="bestLabelStart"></div>
     <button class="btn" id="startBtn">Spielen</button>
   </div>
 
@@ -106,7 +107,6 @@ canvas{ display:block; width:100%; height:100%; touch-action:none; }
     <div class="tag">Level geschafft!</div>
     <div class="big-score" id="levelScore">0</div>
     <div class="label">Punkte</div>
-    <div class="hint">Nächstes Level — der Ball wird schneller.</div>
     <button class="btn" id="nextBtn">Weiter</button>
   </div>
 
@@ -114,7 +114,7 @@ canvas{ display:block; width:100%; height:100%; touch-action:none; }
   <div class="screen hidden" id="overScreen">
     <div class="tag">Game Over</div>
     <div class="big-score" id="finalScore">0</div>
-    <div class="label">Punkte</div>
+    <div class="label" id="bestLabelOver">Punkte</div>
     <button class="btn" id="restartBtn">Nochmal</button>
     <button class="btn ghost" id="menuBtn">Menü</button>
   </div>
@@ -145,6 +145,25 @@ const BRICK_COLORS = [C.brick, C.amber, C.sage, C.blue, '#9b6ec8'];
 let W, H;
 let score = 0, lives = 3, level = 1;
 let running = false;
+
+// --- Spielstand (Highscore) ---
+let best = 0;
+function loadBest() {
+  try {
+    if (window.parent && window.parent.LG) {
+      const s = window.parent.LG.loadGameState('breakout');
+      best = (s && s.best) || 0;
+    }
+  } catch (e) {}
+  document.getElementById('bestLabelStart').textContent = best ? `Bestleistung: ${best}` : '';
+}
+function saveBest() {
+  try {
+    if (window.parent && window.parent.LG) {
+      window.parent.LG.saveGameState('breakout', { best });
+    }
+  } catch (e) {}
+}
 
 // Paddle
 const pad = { w: 0, h: 0, x: 0, y: 0, speed: 0 };
@@ -286,6 +305,11 @@ function loop(ts) {
     if (lives <= 0) {
       running = false;
       document.getElementById('finalScore').textContent = score;
+      if (score > best) {
+        best = score;
+        saveBest();
+      }
+      document.getElementById('bestLabelOver').textContent = `Punkte · Bestleistung: ${best}`;
       showScreen('overScreen');
       return;
     }
@@ -448,6 +472,7 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 // --- Init ---
 window.addEventListener('resize', () => { resize(); if (!running) {} });
 resize();
+loadBest();
 showScreen('startScreen');
 </script>
 </body>

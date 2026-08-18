@@ -14,5 +14,13 @@
     "thumbnail": "assets/img/breakout.png",
     "url": "games/breakout/breakout.html",
     "featured": true
+  },
+  {
+    "id": 3,
+    "title": "Overrun",
+    "category": "Action",
+    "thumbnail": "assets/img/overrun.png",
+    "url": "games/overrun/overrun.html",
+    "featured": true
   }
 ]
