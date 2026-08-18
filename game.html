@@ -13,6 +13,7 @@
   <header class="nav">
     <a href="index.html" class="nav__logo">🎮 Goki</a>
     <span class="nav__game-title" id="game-title"></span>
+    <button class="btn-help" id="help-btn" title="Steuerung anzeigen">❓</button>
     <button class="btn-login">Login</button>
   </header>
 
@@ -23,6 +24,9 @@
     </aside>
 
     <div class="game-center">
+      <div class="game-loading" id="game-loading">
+        <div class="spinner"></div>
+      </div>
       <iframe id="game-frame" src="" allowfullscreen allow="autoplay; fullscreen"></iframe>
     </div>
 

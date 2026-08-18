@@ -25,9 +25,15 @@
   <section class="hero">
     <h1>Deine Spiele. Sofort spielbar.</h1>
     <p>Eine kleine Sammlung eigener Browser-Games – kein Download, einfach loslegen.</p>
+    <button class="btn-random" id="randomBtn">🎲 Zufälliges Spiel</button>
   </section>
 
   <main>
+    <section id="recent-section" style="display:none;">
+      <h2 class="section-title">🕓 Zuletzt gespielt</h2>
+      <div id="recent-grid" class="game-grid game-grid--featured"></div>
+    </section>
+
     <section id="featured-section">
       <h2 class="section-title">⭐ Featured</h2>
       <div id="featured-grid" class="game-grid game-grid--featured"></div>

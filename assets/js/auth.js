@@ -48,7 +48,44 @@
     }
   }
 
-  window.LG = { getUser, login, logout, userKey, saveGameState, loadGameState };
+  function favKey(){ return `lg_favorites_${userKey()}`; }
+  function getFavorites(){
+    try{
+      const raw = localStorage.getItem(favKey());
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function isFavorite(id){ return getFavorites().includes(id); }
+  function toggleFavorite(id){
+    const favs = getFavorites();
+    const idx = favs.indexOf(id);
+    if(idx === -1) favs.push(id); else favs.splice(idx, 1);
+    try{ localStorage.setItem(favKey(), JSON.stringify(favs)); }catch(e){}
+    return favs.includes(id);
+  }
+
+  function recentKey(){ return `lg_recent_${userKey()}`; }
+  function getRecent(limit){
+    limit = limit || 8;
+    try{
+      const raw = localStorage.getItem(recentKey());
+      const list = raw ? JSON.parse(raw) : [];
+      return list.slice(0, limit);
+    }catch(e){ return []; }
+  }
+  function recordPlayed(id){
+    try{
+      let list = getRecent(50).filter(x => x !== id);
+      list.unshift(id);
+      list = list.slice(0, 12);
+      localStorage.setItem(recentKey(), JSON.stringify(list));
+    }catch(e){}
+  }
+
+  window.LG = {
+    getUser, login, logout, userKey, saveGameState, loadGameState,
+    getFavorites, isFavorite, toggleFavorite, getRecent, recordPlayed,
+  };
 
   /* ---------- UI: Login-Button + Modal ---------- */
   function buildModal() {
@@ -118,6 +155,7 @@
     dropdown.className = 'auth-dropdown hidden';
     dropdown.innerHTML = `
       <div class="auth-dropdown__user" id="auth-dropdown-user"></div>
+      <a class="auth-dropdown__item" href="profil.html">📊 Meine Highscores</a>
       <button type="button" class="auth-dropdown__logout" id="auth-logout-btn">Abmelden</button>
     `;
     wrap.appendChild(dropdown);

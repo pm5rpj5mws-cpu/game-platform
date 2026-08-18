@@ -2,41 +2,51 @@
   {
     "id": 1,
     "title": "Treffpunkt",
-    "category": "Geschicklichkeit",
+    "categories": ["Geschicklichkeit", "Arcade"],
     "thumbnail": "assets/img/treffpunkt.png",
     "url": "games/treffpunkt/treffpunkt-v3.html",
+    "controls": "Leertaste, Klick oder Tippen zum Springen. Triff die Linie im richtigen Moment.",
+    "saveKey": "treffpunkt",
     "featured": true
   },
   {
     "id": 2,
     "title": "Breakout",
-    "category": "Arcade",
+    "categories": ["Arcade", "Klassiker"],
     "thumbnail": "assets/img/breakout.png",
     "url": "games/breakout/breakout.html",
+    "controls": "Maus oder Finger bewegt das Paddle. Zerstöre alle Blöcke, ohne den Ball fallen zu lassen.",
+    "saveKey": "breakout",
     "featured": true
   },
   {
     "id": 3,
     "title": "Overrun",
-    "category": "Action",
+    "categories": ["Action", "Shooter"],
     "thumbnail": "assets/img/overrun.png",
     "url": "games/overrun/overrun.html",
+    "controls": "WASD/Pfeiltasten bewegen, mit der Maus zielen, Klick oder Leertaste schiessen. ESC pausiert.",
+    "saveKey": "overrun",
     "featured": true
   },
   {
     "id": 4,
     "title": "Flatterbird",
-    "category": "Geschicklichkeit",
+    "categories": ["Geschicklichkeit", "Arcade"],
     "thumbnail": "assets/img/flatterbird.png",
     "url": "games/flatterbird/flatterbird.html",
+    "controls": "Klicken, Tippen oder Leertaste zum Flattern. Fliege zwischen den Rohren hindurch.",
+    "saveKey": "flatterbird",
     "featured": true
   },
   {
     "id": 5,
     "title": "Snake",
-    "category": "Klassiker",
+    "categories": ["Klassiker", "Arcade"],
     "thumbnail": "assets/img/snake.png",
     "url": "games/snake/snake.html",
+    "controls": "Pfeiltasten/WASD steuern, auf dem Handy wischen. Sammle Äpfel, ohne Wand oder dich selbst zu berühren.",
+    "saveKey": "snake",
     "featured": false
   }
 ]

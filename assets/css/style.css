@@ -157,6 +157,29 @@ a {
   max-width: 480px;
 }
 
+.btn-random {
+  margin-top: 16px;
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-random:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#recent-section {
+  margin-bottom: 44px;
+}
+
 /* ============================================
    Categories Bar
    ============================================ */
@@ -250,6 +273,31 @@ main {
   transform: translateY(-4px);
   border-color: var(--border-strong);
   box-shadow: var(--shadow-lift);
+}
+
+.game-card__fav {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(11, 12, 15, 0.65);
+  color: #cfd2da;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.game-card__fav:hover { transform: scale(1.08); }
+
+.game-card__fav.is-fav {
+  color: #ffd23f;
 }
 
 .game-card__thumb {
@@ -383,6 +431,57 @@ body.is-game-page {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.game-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  transition: opacity 0.25s ease;
+}
+
+.game-loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-help {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-help:hover {
+  border-color: var(--accent);
+  color: var(--text);
 }
 
 #game-frame {
@@ -568,7 +667,8 @@ body.is-game-page {
   border-bottom: 1px solid var(--border);
 }
 
-.auth-dropdown__logout {
+.auth-dropdown__logout,
+.auth-dropdown__item {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text);
@@ -585,6 +685,11 @@ body.is-game-page {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
+}
+
+.auth-dropdown__item:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
 }
 
 /* ============================================
@@ -687,3 +792,108 @@ body.is-game-page {
 }
 
 .login-modal__cancel:hover { color: var(--text); }
+
+/* ============================================
+   Generisches Bestätigungs-/Hilfe-Modal
+   ============================================ */
+.simple-modal.hidden { display: none; }
+
+.simple-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.simple-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
+}
+
+.simple-modal__box {
+  position: relative;
+  z-index: 1;
+  width: 340px;
+  max-width: 90vw;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow-md);
+}
+
+.simple-modal__box h3 {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.simple-modal__box p {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.simple-modal__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.simple-modal__ok,
+.simple-modal__cancel {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.simple-modal__ok {
+  border: none;
+  background: var(--accent);
+  color: #fff;
+}
+
+.simple-modal__ok:hover { background: var(--accent-hover); }
+
+.simple-modal__cancel {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.simple-modal__cancel:hover { color: var(--text); border-color: var(--border-strong); }
+
+/* ============================================
+   Profil-Seite (Highscore-Dashboard)
+   ============================================ */
+.profile-who {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+.game-card--static {
+  cursor: default;
+}
+
+.game-card--static:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--border);
+}
+
+.game-card__cat.has-score {
+  color: var(--accent);
+  font-weight: 600;
+}

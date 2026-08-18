@@ -331,6 +331,9 @@ function loadSave(){
 function persist(){
   memoryFallback = save;
   try{ window.localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){}
+  try{
+    if(window.parent && window.parent.LG) window.parent.LG.saveGameState('treffpunkt', { best: save.best });
+  }catch(e){}
 }
 let save = loadSave();
 
