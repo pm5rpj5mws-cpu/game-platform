@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Goki</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -22,6 +22,11 @@
     <div id="categories" class="categories"></div>
   </div>
 
+  <section class="hero">
+    <h1>Deine Spiele. Sofort spielbar.</h1>
+    <p>Eine kleine Sammlung eigener Browser-Games – kein Download, einfach loslegen.</p>
+  </section>
+
   <main>
     <section id="featured-section">
       <h2 class="section-title">⭐ Featured</h2>
@@ -33,6 +38,32 @@
       <div id="game-grid" class="game-grid"></div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <span class="site-footer__logo">🎮 Goki</span>
+        <p>Eine kleine Sammlung eigener Browser-Games. Kein Download, keine Werbung, einfach loslegen.</p>
+      </div>
+
+      <div class="site-footer__col">
+        <h4>Navigation</h4>
+        <a href="#featured-section">Featured</a>
+        <a href="#all-section">Alle Spiele</a>
+        <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">Nach oben</a>
+      </div>
+
+      <div class="site-footer__col">
+        <h4>Projekt</h4>
+        <a href="https://github.com/pm5rpj5mws-cpu/game-platform" target="_blank" rel="noopener">GitHub Repo</a>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <span>© 2026 Goki</span>
+      <span>Selbst gebaut von Lars</span>
+    </div>
+  </footer>
 
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/main.js"></script>

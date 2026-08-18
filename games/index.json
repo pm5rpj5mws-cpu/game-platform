@@ -22,5 +22,21 @@
     "thumbnail": "assets/img/overrun.png",
     "url": "games/overrun/overrun.html",
     "featured": true
+  },
+  {
+    "id": 4,
+    "title": "Flatterbird",
+    "category": "Geschicklichkeit",
+    "thumbnail": "assets/img/flatterbird.png",
+    "url": "games/flatterbird/flatterbird.html",
+    "featured": true
+  },
+  {
+    "id": 5,
+    "title": "Snake",
+    "category": "Klassiker",
+    "thumbnail": "assets/img/snake.png",
+    "url": "games/snake/snake.html",
+    "featured": false
   }
 ]
