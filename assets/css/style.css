@@ -121,6 +121,7 @@ a {
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   white-space: nowrap;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .btn-login:hover {
@@ -432,6 +433,59 @@ body.is-game-page {
 @media (max-width: 700px) {
   .sidebar { display: none; }
   .bottom-row { display: none; }
+}
+
+/* ============================================
+   Profil-Dropdown
+   ============================================ */
+.auth-widget {
+  position: relative;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.auth-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 190px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  z-index: 200;
+}
+
+.auth-dropdown.hidden { display: none; }
+
+.auth-dropdown__user {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  padding: 2px 4px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.auth-dropdown__logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: 'DM Sans', sans-serif;
+  text-align: left;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+
+.auth-dropdown__logout:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 /* ============================================

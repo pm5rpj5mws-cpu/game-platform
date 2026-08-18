@@ -15,7 +15,7 @@ async function loadGames() {
     }
 
     // Titel setzen
-    document.title = `${game.title} – LarsGames`;
+    document.title = `${game.title} – Goki`;
     document.getElementById('game-title').textContent = game.title;
 
     // iFrame laden

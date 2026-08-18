@@ -1,5 +1,5 @@
 /* ============================================
-   LarsGames Auth (Test-Login via localStorage)
+   Goki Auth (Test-Login via localStorage)
    ============================================ */
 (function () {
   const TEST_USERS = { Admin: '1234' };
@@ -103,19 +103,62 @@
     if (m) m.classList.add('hidden');
   }
 
-  function renderAuthUI() {
+  /* ---------- UI: Profil-Dropdown ---------- */
+  function ensureWidget() {
     const btn = document.querySelector('.btn-login');
-    if (!btn) return;
+    if (!btn) return null;
+    if (btn.parentElement.classList.contains('auth-widget')) return btn.parentElement;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'auth-widget';
+    btn.parentElement.insertBefore(wrap, btn);
+    wrap.appendChild(btn);
+
+    const dropdown = document.createElement('div');
+    dropdown.className = 'auth-dropdown hidden';
+    dropdown.innerHTML = `
+      <div class="auth-dropdown__user" id="auth-dropdown-user"></div>
+      <button type="button" class="auth-dropdown__logout" id="auth-logout-btn">Abmelden</button>
+    `;
+    wrap.appendChild(dropdown);
+
+    document.getElementById('auth-logout-btn').addEventListener('click', function (e) {
+      e.stopPropagation();
+      logout();
+      closeDropdown();
+      renderAuthUI();
+    });
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target)) closeDropdown();
+    });
+
+    return wrap;
+  }
+
+  function toggleDropdown(e) {
+    e.stopPropagation();
+    const dd = document.querySelector('.auth-dropdown');
+    if (dd) dd.classList.toggle('hidden');
+  }
+
+  function closeDropdown() {
+    const dd = document.querySelector('.auth-dropdown');
+    if (dd) dd.classList.add('hidden');
+  }
+
+  function renderAuthUI() {
+    const wrap = ensureWidget();
+    if (!wrap) return;
+    const btn = wrap.querySelector('.btn-login');
     const user = getUser();
     if (user) {
-      btn.textContent = `👤 ${user} · Abmelden`;
-      btn.onclick = function () {
-        logout();
-        renderAuthUI();
-      };
+      btn.textContent = `👤 ${user} ▾`;
+      btn.onclick = toggleDropdown;
+      document.getElementById('auth-dropdown-user').textContent = `Angemeldet als ${user}`;
     } else {
       btn.textContent = 'Login';
       btn.onclick = openModal;
+      closeDropdown();
     }
   }
 
