@@ -74,12 +74,69 @@ async function loadLeaderboards(games) {
   `).join('');
 }
 
+/* ---------- Konto löschen ---------- */
+function buildDeleteModal() {
+  if (document.getElementById('delete-modal')) return;
+  const wrap = document.createElement('div');
+  wrap.id = 'delete-modal';
+  wrap.className = 'simple-modal hidden';
+  wrap.innerHTML = `
+    <div class="simple-modal__backdrop"></div>
+    <form class="simple-modal__box" id="delete-form" autocomplete="off">
+      <h3>Konto endgültig löschen?</h3>
+      <p>Alle Spielstände, Highscores und Favoriten werden unwiderruflich gelöscht. Gib zur Bestätigung dein Passwort ein.</p>
+      <input type="password" id="delete-password" placeholder="Passwort" autocomplete="current-password" required>
+      <p class="simple-modal__error hidden" id="delete-error"></p>
+      <div class="simple-modal__actions">
+        <button type="button" class="simple-modal__cancel" id="delete-cancel">Abbrechen</button>
+        <button type="submit" class="simple-modal__ok simple-modal__ok--danger" id="delete-confirm">Endgültig löschen</button>
+      </div>
+    </form>
+  `;
+  document.body.appendChild(wrap);
+
+  wrap.querySelector('.simple-modal__backdrop').addEventListener('click', closeDeleteModal);
+  document.getElementById('delete-cancel').addEventListener('click', closeDeleteModal);
+  document.getElementById('delete-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const password = document.getElementById('delete-password').value;
+    const errorEl = document.getElementById('delete-error');
+    const confirmBtn = document.getElementById('delete-confirm');
+    confirmBtn.disabled = true;
+    errorEl.classList.add('hidden');
+
+    const result = await window.LG.deleteAccount(password);
+    if (result === true) {
+      window.location.href = 'index.html';
+      return;
+    }
+    confirmBtn.disabled = false;
+    errorEl.textContent = (result && result.error) || 'Löschen fehlgeschlagen.';
+    errorEl.classList.remove('hidden');
+  });
+}
+function openDeleteModal() {
+  buildDeleteModal();
+  document.getElementById('delete-form').reset();
+  document.getElementById('delete-error').classList.add('hidden');
+  document.getElementById('delete-modal').classList.remove('hidden');
+}
+function closeDeleteModal() {
+  const m = document.getElementById('delete-modal');
+  if (m) m.classList.add('hidden');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   if (window.LG) await window.LG.ready;
   const who = document.getElementById('profile-who');
-  if (who && window.LG) {
-    const user = window.LG.getUser();
+  const user = window.LG && window.LG.getUser();
+  if (who) {
     who.textContent = user ? `Angemeldet als ${user}` : 'Als Gast unterwegs – melde dich an, um deinen Fortschritt zu behalten.';
+  }
+  const deleteBtn = document.getElementById('delete-account-btn');
+  if (deleteBtn) {
+    deleteBtn.style.display = user ? '' : 'none';
+    deleteBtn.addEventListener('click', openDeleteModal);
   }
   loadDashboard();
 });

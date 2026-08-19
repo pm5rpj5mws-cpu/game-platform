@@ -1,4 +1,5 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const { pool } = require('../db');
 const {
   normalizeUsername,
@@ -8,12 +9,29 @@ const {
   destroySession,
   setSessionCookie,
   clearSessionCookie,
+  requireAuth,
 } = require('../auth');
 const asyncHandler = require('../asyncHandler');
 
 const router = express.Router();
 
-router.post('/register', asyncHandler(async (req, res) => {
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Zu viele Registrierungsversuche. Bitte in ein paar Minuten erneut versuchen.' },
+});
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Zu viele Loginversuche. Bitte in ein paar Minuten erneut versuchen.' },
+});
+
+router.post('/register', registerLimiter, asyncHandler(async (req, res) => {
   const username = String((req.body && req.body.username) || '').trim();
   const password = String((req.body && req.body.password) || '');
 
@@ -42,7 +60,7 @@ router.post('/register', asyncHandler(async (req, res) => {
   res.json({ username: user.username });
 }));
 
-router.post('/login', asyncHandler(async (req, res) => {
+router.post('/login', loginLimiter, asyncHandler(async (req, res) => {
   const username = String((req.body && req.body.username) || '').trim();
   const password = String((req.body && req.body.password) || '');
   const usernameLower = normalizeUsername(username);
@@ -60,6 +78,20 @@ router.post('/login', asyncHandler(async (req, res) => {
 
 router.post('/logout', asyncHandler(async (req, res) => {
   await destroySession(req.sessionToken);
+  clearSessionCookie(res);
+  res.json({ ok: true });
+}));
+
+router.delete('/account', requireAuth, asyncHandler(async (req, res) => {
+  const password = String((req.body && req.body.password) || '');
+
+  const { rows } = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);
+  const user = rows[0];
+  if (!user || !(await verifyPassword(password, user.password_hash))) {
+    return res.status(401).json({ error: 'Falsches Passwort.' });
+  }
+
+  await pool.query('DELETE FROM users WHERE id = $1', [req.user.id]);
   clearSessionCookie(res);
   res.json({ ok: true });
 }));

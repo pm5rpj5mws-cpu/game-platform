@@ -547,9 +547,21 @@ body.is-game-page {
    Footer
    ============================================ */
 .site-footer {
+  position: relative;
   border-top: 1px solid var(--border);
   background: var(--surface);
-  padding: 44px 28px 24px;
+  padding: 48px 28px 26px;
+}
+
+.site-footer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.5;
 }
 
 .site-footer__top {
@@ -568,9 +580,13 @@ body.is-game-page {
 }
 
 .site-footer__logo {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: -0.01em;
+  background: linear-gradient(90deg, var(--text), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .site-footer__brand p {
@@ -599,12 +615,13 @@ body.is-game-page {
 .site-footer__col a {
   font-size: 0.85rem;
   color: var(--text);
-  transition: color 0.15s;
+  transition: color 0.15s, transform 0.15s;
   width: fit-content;
 }
 
 .site-footer__col a:hover {
   color: var(--accent);
+  transform: translateX(3px);
 }
 
 .site-footer__bottom {
@@ -614,10 +631,82 @@ body.is-game-page {
   padding-top: 18px;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px 20px;
   justify-content: space-between;
   font-size: 0.78rem;
   color: var(--text-muted);
+}
+
+.site-footer__legal-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.site-footer__legal-links a {
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.site-footer__legal-links a:hover {
+  color: var(--accent);
+}
+
+.site-footer__legal-links span {
+  color: var(--border-strong);
+}
+
+/* ============================================
+   Rechtsseiten (Impressum / Datenschutz)
+   ============================================ */
+.legal-content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 8px 28px 64px;
+}
+
+.legal-content h2 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin: 32px 0 10px;
+}
+
+.legal-content h2:first-child {
+  margin-top: 0;
+}
+
+.legal-content p,
+.legal-content li {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.legal-content ul {
+  padding-left: 20px;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.legal-content strong {
+  color: var(--text);
+}
+
+.legal-content a {
+  color: var(--accent);
+}
+
+.legal-content .legal-note {
+  margin-top: 28px;
+  padding: 14px 16px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: var(--surface-2);
 }
 
 /* ============================================
@@ -926,6 +1015,31 @@ body.is-game-page {
 
 .simple-modal__cancel:hover { color: var(--text); border-color: var(--border-strong); }
 
+.simple-modal__box input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.simple-modal__box input:focus { border-color: var(--accent); }
+
+.simple-modal__error {
+  color: #ff6b6b;
+  font-size: 0.8rem;
+}
+
+.simple-modal__error.hidden { display: none; }
+
+.simple-modal__ok--danger { background: #e5484d; }
+.simple-modal__ok--danger:hover { background: #d33d42; }
+
 /* ============================================
    Profil-Seite (Highscore-Dashboard)
    ============================================ */
@@ -933,6 +1047,25 @@ body.is-game-page {
   color: var(--text-muted);
   font-size: 0.85rem;
   margin-top: 8px;
+}
+
+.btn-danger-outline {
+  margin-top: 16px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-danger-outline:hover {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
 }
 
 .game-card--static {

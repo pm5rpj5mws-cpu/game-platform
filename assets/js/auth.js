@@ -76,6 +76,23 @@
     recentCache = [];
   }
 
+  async function deleteAccount(password) {
+    try {
+      await api('/api/auth/account', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      currentUser = null;
+      savesCache = {};
+      favoritesCache = [];
+      recentCache = [];
+      return true;
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
   /* ---------- Gast-Fallback (localStorage) ---------- */
   function guestSaveKey(gameId) { return `lg_save_gast_${gameId}`; }
   function guestFavKey() { return 'lg_favorites_gast'; }
@@ -160,7 +177,7 @@
   }
 
   window.LG = {
-    ready, getUser, login, register, logout, saveGameState, loadGameState,
+    ready, getUser, login, register, logout, deleteAccount, saveGameState, loadGameState,
     getFavorites, isFavorite, toggleFavorite, getRecent, recordPlayed,
   };
 

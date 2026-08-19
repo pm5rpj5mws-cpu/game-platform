@@ -4,8 +4,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgres://goki:goki@postgres:5432/goki
-      COOKIE_SECURE: "false"
+      DATABASE_URL: postgres://${POSTGRES_USER:-goki}:${POSTGRES_PASSWORD:-goki}@postgres:5432/${POSTGRES_DB:-goki}
+      COOKIE_SECURE: "${COOKIE_SECURE:-false}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -13,13 +13,13 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: goki
-      POSTGRES_PASSWORD: goki
-      POSTGRES_DB: goki
+      POSTGRES_USER: ${POSTGRES_USER:-goki}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-goki}
+      POSTGRES_DB: ${POSTGRES_DB:-goki}
     volumes:
       - goki_pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U goki"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-goki}"]
       interval: 2s
       timeout: 5s
       retries: 10

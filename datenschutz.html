@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datenschutz – Goki</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <header class="nav">
+    <a href="index.html" class="nav__logo">🎮 Goki</a>
+    <span class="nav__game-title">Datenschutz</span>
+    <button class="btn-login">Login</button>
+  </header>
+
+  <section class="hero">
+    <h1>Datenschutzerklärung</h1>
+    <p>Kurz und verständlich: welche Daten Goki speichert und warum.</p>
+  </section>
+
+  <main class="legal-content">
+    <h2>Verantwortlicher</h2>
+    <p>
+      [Vor- und Nachname], [Adresse], [E-Mail] – siehe <a href="impressum.html">Impressum</a>.
+    </p>
+
+    <h2>Gast-Modus (ohne Konto)</h2>
+    <p>
+      Ohne Anmeldung speichert Goki Spielstände, Favoriten und zuletzt gespielte Spiele ausschließlich
+      lokal in deinem Browser (localStorage). Diese Daten verlassen dein Gerät nicht und werden nicht
+      an unsere Server übertragen.
+    </p>
+
+    <h2>Konto &amp; Login</h2>
+    <p>
+      Bei einer Registrierung speichern wir deinen Benutzernamen und ein gehashtes Passwort (bcrypt) in
+      unserer Datenbank. Nach dem Login setzen wir ein technisch notwendiges Session-Cookie
+      (<code>goki_session</code>), das ausschließlich zur Anmeldung dient, keine Trackingzwecke verfolgt
+      und nicht an Dritte weitergegeben wird. Es wird nur so lange gespeichert, wie es für den
+      Anmeldevorgang nötig ist (max. 30 Tage oder bis zum Abmelden).
+    </p>
+    <p>Zusätzlich speichern wir für angemeldete Konten:</p>
+    <ul>
+      <li>Spielstände und Highscores pro Spiel</li>
+      <li>Favoriten</li>
+      <li>Zuletzt gespielte Spiele</li>
+    </ul>
+    <p>
+      Diese Daten dienen ausschließlich dazu, dir deinen Fortschritt geräteübergreifend anzuzeigen, und
+      werden nicht an Dritte weitergegeben oder zu Werbezwecken genutzt.
+    </p>
+
+    <h2>Bestenlisten</h2>
+    <p>
+      Wenn du einen Highscore erzielst, kann dein Benutzername mit deinem Highscore in der öffentlichen
+      Bestenliste des jeweiligen Spiels für alle Besucher sichtbar sein.
+    </p>
+
+    <h2>Google Fonts</h2>
+    <p>
+      Diese Seite lädt die Schriftart „Inter" über Google Fonts nach. Dabei kann eine Verbindung zu
+      Servern von Google (Google Ireland Limited) aufgebaut und deine IP-Adresse übertragen werden.
+      Weitere Informationen findest du in der
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Datenschutzerklärung von Google</a>.
+    </p>
+
+    <h2>Deine Rechte</h2>
+    <p>
+      Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung deiner
+      Daten. Um dein Konto oder deine gespeicherten Daten löschen zu lassen, kontaktiere uns über die im
+      Impressum angegebene E-Mail-Adresse.
+    </p>
+
+    <div class="legal-note">
+      Hinweis: Die eckigen Klammern sind Platzhalter und müssen vor der Veröffentlichung mit den
+      tatsächlichen Angaben ausgefüllt werden.
+    </div>
+  </main>
+
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>
