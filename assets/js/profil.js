@@ -38,12 +38,44 @@ async function loadDashboard() {
         </div>
       `;
     }).join('');
+    loadLeaderboards(games);
   } catch (e) {
     grid.innerHTML = '<p style="color:var(--text-muted);grid-column:1/-1;">Highscores konnten nicht geladen werden.</p>';
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+async function loadLeaderboards(games) {
+  const section = document.getElementById('leaderboard-section');
+  if (!section) return;
+  const withScores = games.filter(g => g.saveKey);
+  if (!withScores.length) { section.style.display = 'none'; return; }
+
+  const lists = await Promise.all(withScores.map(async g => {
+    try {
+      const res = await fetch(`/api/leaderboard/${encodeURIComponent(g.saveKey)}?limit=5`);
+      if (!res.ok) return { game: g, rows: [] };
+      return { game: g, rows: await res.json() };
+    } catch (e) {
+      return { game: g, rows: [] };
+    }
+  }));
+
+  const withRows = lists.filter(l => l.rows.length);
+  if (!withRows.length) { section.style.display = 'none'; return; }
+
+  section.style.display = '';
+  document.getElementById('leaderboard-grid').innerHTML = withRows.map(({ game, rows }) => `
+    <div class="leaderboard-card">
+      <div class="leaderboard-card__title">${game.title}</div>
+      <ol class="leaderboard-card__list">
+        ${rows.map(r => `<li><span>${r.username}</span><span>${r.best}</span></li>`).join('')}
+      </ol>
+    </div>
+  `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (window.LG) await window.LG.ready;
   const who = document.getElementById('profile-who');
   if (who && window.LG) {
     const user = window.LG.getUser();

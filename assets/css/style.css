@@ -793,6 +793,58 @@ body.is-game-page {
 
 .login-modal__cancel:hover { color: var(--text); }
 
+.login-modal__switch {
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.login-modal__switch:hover { color: var(--accent-hover); }
+
+/* ============================================
+   Globale Bestenlisten (profil.html)
+   ============================================ */
+.leaderboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.leaderboard-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.leaderboard-card__title {
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.leaderboard-card__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+}
+
+.leaderboard-card__list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.leaderboard-card__list li span:first-child { color: var(--text); }
+
 /* ============================================
    Generisches Bestätigungs-/Hilfe-Modal
    ============================================ */

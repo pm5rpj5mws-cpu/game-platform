@@ -3,6 +3,7 @@ let currentGame = null;
 
 async function loadGames() {
   try {
+    if (window.LG) await window.LG.ready;
     const res = await fetch('games/index.json');
     allGames = await res.json();
 
