@@ -276,7 +276,10 @@
     dropdown.className = 'auth-dropdown hidden';
     dropdown.innerHTML = `
       <div class="auth-dropdown__user" id="auth-dropdown-user"></div>
-      <a class="auth-dropdown__item" href="profil.html">📊 Meine Highscores</a>
+      <a class="auth-dropdown__item" href="profil.html">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-6"/></svg>
+        Meine Highscores
+      </a>
       <button type="button" class="auth-dropdown__logout" id="auth-logout-btn">Abmelden</button>
     `;
     wrap.appendChild(dropdown);
@@ -311,7 +314,11 @@
     const btn = wrap.querySelector('.btn-login');
     const user = getUser();
     if (user) {
-      btn.textContent = `👤 ${user} ▾`;
+      btn.innerHTML = `
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+        ${user}
+        <svg class="icon" style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      `;
       btn.onclick = toggleDropdown;
       document.getElementById('auth-dropdown-user').textContent = `Angemeldet als ${user}`;
     } else {

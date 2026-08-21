@@ -41,18 +41,20 @@ function renderGames(games) {
   grid.innerHTML = games.map(g => cardHTML(g)).join('');
 }
 
+const STAR_ICON = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6-4.5-4.1 6-.7z"/></svg>';
+
 function cardHTML(game) {
   const fav = !!(window.LG && window.LG.isFavorite(game.id));
   return `
     <div class="game-card" onclick="openGame(${game.id})">
-      <button class="game-card__fav ${fav ? 'is-fav' : ''}" title="Favorit" onclick="event.stopPropagation(); toggleFavoriteCard(${game.id}, this);">${fav ? '★' : '☆'}</button>
+      <button class="game-card__fav ${fav ? 'is-fav' : ''}" title="Favorit" onclick="event.stopPropagation(); toggleFavoriteCard(${game.id}, this);">${STAR_ICON}</button>
       <img class="game-card__thumb"
            src="${game.thumbnail}"
            alt="${game.title}"
            onerror="this.src='https://placehold.co/300x200/1e1e36/8b8ba7?text=🎮'">
       <div class="game-card__body">
         <div class="game-card__title">${game.title}</div>
-        <div class="game-card__cat">${game.categories.join(' · ')}</div>
+        <div class="game-card__cats">${game.categories.map(c => `<span class="game-card__chip">${c}</span>`).join('')}</div>
       </div>
     </div>
   `;
@@ -61,7 +63,6 @@ function cardHTML(game) {
 function toggleFavoriteCard(id, btnEl) {
   if (!window.LG) return;
   const nowFav = window.LG.toggleFavorite(id);
-  btnEl.textContent = nowFav ? '★' : '☆';
   btnEl.classList.toggle('is-fav', nowFav);
   if (activeCategory === 'Favoriten') filterGames('Favoriten');
 }
@@ -70,7 +71,7 @@ function renderCategories() {
   const cats = ['Alle', 'Favoriten', ...new Set(allGames.flatMap(g => g.categories))];
   document.getElementById('categories').innerHTML = cats.map(cat => `
     <button class="${cat === activeCategory ? 'active' : ''}" onclick="filterGames('${cat}')">
-      ${cat === 'Favoriten' ? '⭐ Favoriten' : cat}
+      ${cat === 'Favoriten' ? STAR_ICON + ' Favoriten' : cat}
     </button>
   `).join('');
 }

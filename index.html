@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Goki</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
   <header class="nav">
-    <span class="nav__logo">🎮 Goki</span>
+    <span class="nav__logo">🎮 <span class="nav__logo-word">Goki</span></span>
     <div class="nav__search-wrap">
       <input type="text" id="search" placeholder="Spiel suchen...">
     </div>
@@ -25,17 +25,20 @@
   <section class="hero">
     <h1>Deine Spiele. Sofort spielbar.</h1>
     <p>Eine kleine Sammlung eigener Browser-Games – kein Download, einfach loslegen.</p>
-    <button class="btn-random" id="randomBtn">🎲 Zufälliges Spiel</button>
+    <button class="btn-random" id="randomBtn">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg>
+      Zufälliges Spiel
+    </button>
   </section>
 
   <main>
     <section id="recent-section" style="display:none;">
-      <h2 class="section-title">🕓 Zuletzt gespielt</h2>
+      <h2 class="section-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg> Zuletzt gespielt</h2>
       <div id="recent-grid" class="game-grid game-grid--featured"></div>
     </section>
 
     <section id="featured-section">
-      <h2 class="section-title">⭐ Featured</h2>
+      <h2 class="section-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6-4.5-4.1 6-.7z"/></svg> Featured</h2>
       <div id="featured-grid" class="game-grid game-grid--featured"></div>
     </section>
 
@@ -48,20 +51,20 @@
   <footer class="site-footer">
     <div class="site-footer__top">
       <div class="site-footer__brand">
-        <span class="site-footer__logo">🎮 Goki</span>
+        <span class="site-footer__logo">🎮 <span class="nav__logo-word">Goki</span></span>
         <p>Eine kleine Sammlung eigener Browser-Games. Kein Download, keine Werbung, einfach loslegen.</p>
       </div>
 
       <div class="site-footer__col">
         <h4>Navigation</h4>
-        <a href="#featured-section">⭐ Featured</a>
-        <a href="#all-section">🎮 Alle Spiele</a>
-        <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">⬆ Nach oben</a>
+        <a href="#featured-section">Featured</a>
+        <a href="#all-section">Alle Spiele</a>
+        <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">Nach oben</a>
       </div>
 
       <div class="site-footer__col">
         <h4>Konto</h4>
-        <a href="profil.html">📊 Meine Highscores</a>
+        <a href="profil.html">Meine Highscores</a>
       </div>
     </div>
 

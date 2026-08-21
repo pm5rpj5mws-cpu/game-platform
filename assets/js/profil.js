@@ -6,13 +6,15 @@ const MEDAL_THRESHOLDS = {
   snake:       { bronze: 10,  silver: 25,   gold: 50 },
 };
 
-function medalFor(saveKey, best) {
+const MEDAL_ICON = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-2.5 5 2.5-1.5-8.5"/></svg>';
+
+function medalTierFor(saveKey, best) {
   if (best === null) return '';
   const t = MEDAL_THRESHOLDS[saveKey];
   if (!t) return '';
-  if (best >= t.gold) return ' 🥇';
-  if (best >= t.silver) return ' 🥈';
-  if (best >= t.bronze) return ' 🥉';
+  if (best >= t.gold) return 'gold';
+  if (best >= t.silver) return 'silver';
+  if (best >= t.bronze) return 'bronze';
   return '';
 }
 
@@ -21,23 +23,32 @@ async function loadDashboard() {
   try {
     const res = await fetch('games/index.json');
     const games = await res.json();
+    let scoredCount = 0;
+    let medalCount = 0;
     grid.innerHTML = games.map(g => {
       const s = g.saveKey && window.LG ? window.LG.loadGameState(g.saveKey) : null;
       const best = s && typeof s.best === 'number' ? s.best : null;
-      const medal = medalFor(g.saveKey, best);
+      const medal = medalTierFor(g.saveKey, best);
+      if (best !== null) scoredCount++;
+      if (medal) medalCount++;
       return `
         <div class="game-card game-card--static">
+          ${medal ? `<div class="game-card__medal game-card__medal--${medal}">${MEDAL_ICON}</div>` : ''}
           <img class="game-card__thumb"
                src="${g.thumbnail}"
                alt="${g.title}"
                onerror="this.src='https://placehold.co/300x200/1e1e36/8b8ba7?text=🎮'">
           <div class="game-card__body">
-            <div class="game-card__title">${g.title}${medal}</div>
+            <div class="game-card__title">${g.title}</div>
             <div class="game-card__cat${best !== null ? ' has-score' : ''}">${best === null ? 'Noch nicht gespielt' : best + ' Punkte'}</div>
           </div>
         </div>
       `;
     }).join('');
+    const scoredEl = document.getElementById('stat-scored');
+    const medalsEl = document.getElementById('stat-medals');
+    if (scoredEl) scoredEl.textContent = `${scoredCount} / ${games.length}`;
+    if (medalsEl) medalsEl.textContent = medalCount;
     loadLeaderboards(games);
   } catch (e) {
     grid.innerHTML = '<p style="color:var(--text-muted);grid-column:1/-1;">Highscores konnten nicht geladen werden.</p>';
@@ -61,6 +72,7 @@ async function loadLeaderboards(games) {
   }));
 
   const withRows = lists.filter(l => l.rows.length);
+  updateBestRankStat(withRows);
   if (!withRows.length) { section.style.display = 'none'; return; }
 
   section.style.display = '';
@@ -72,6 +84,32 @@ async function loadLeaderboards(games) {
       </ol>
     </div>
   `).join('');
+}
+
+function updateBestRankStat(withRows) {
+  const rankEl = document.getElementById('stat-best-rank');
+  const labelEl = document.getElementById('stat-best-rank-label');
+  if (!rankEl) return;
+  const user = window.LG && window.LG.getUser();
+  if (!user) {
+    rankEl.textContent = '–';
+    if (labelEl) labelEl.textContent = 'Beste Top-5-Platzierung';
+    return;
+  }
+  let best = null;
+  for (const { game, rows } of withRows) {
+    const idx = rows.findIndex(r => r.username === user);
+    if (idx !== -1 && (best === null || idx < best.rank)) {
+      best = { rank: idx, game: game.title };
+    }
+  }
+  if (best) {
+    rankEl.textContent = `#${best.rank + 1}`;
+    if (labelEl) labelEl.textContent = `Beste Platzierung · ${best.game}`;
+  } else {
+    rankEl.textContent = '–';
+    if (labelEl) labelEl.textContent = 'Noch keine Top-5-Platzierung';
+  }
 }
 
 /* ---------- Konto löschen ---------- */
